@@ -1,0 +1,75 @@
+﻿<div class="container py-4">
+    <a asp-action="PageEvenement" class="text-decoration-none text-primary small mb-3 d-inline-block">← Retour aux événements</a>
+
+    <div class="row g-4">
+        <!-- Colonne gauche -->
+        <div class="col-md-8">
+            <!-- Image -->
+            <div class="card mb-3">
+                <img src="@Url.Content(Model.ImageUrl)" class="card-img-top" alt="@Model.Titre" style="height: 300px; object-fit: cover;" />
+            </div>
+
+            <!-- Titre + sport + organisateur -->
+            <div class="card mb-3 p-3 d-flex flex-md-row justify-content-between align-items-start align-items-md-center">
+                <div>
+                    <h1 class="h4">@Model.Titre</h1>
+                    <p class="text-muted small mb-0">@Model.Sport</p>
+                </div>
+                <div class="text-muted small mt-2 mt-md-0">
+                    Organisé par <strong>@Model.User.FullName</strong>
+                </div>
+            </div>
+
+            <!-- Affiche match -->
+            <div class="alert alert-light d-flex justify-content-between align-items-center fw-semibold fs-5 mb-3">
+                <span>AS Saint-Denis (Domicile)</span>
+                <span class="fs-3 fw-bold text-dark">VS</span>
+                <span>FC Vincennes (Extérieur)</span>
+            </div>
+
+            <!-- Détails événement -->
+            <div class="card p-4">
+                <h2 class="h6 fw-semibold mb-3">À propos de l’événement</h2>
+                <p>@Model.Description</p>
+
+                <div class="row row-cols-2 text-muted small mt-3">
+                    <div><strong>Date :</strong> @Model.Date.ToString("dddd dd MMMM yyyy")</div>
+                    <div><strong>Heure :</strong> @Model.Date.ToString("HH:mm")</div>
+                    <div><strong>Lieu :</strong> @Model.Ville</div>
+                    <div><strong>Tarif :</strong> @Model.Prix € par place</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne droite -->
+        <div class="col-md-4">
+            <!-- Réservation -->
+            <div class="card p-3 mb-4">
+                <h3 class="h6 fw-semibold mb-2">Réservation</h3>
+                <p class="small">Tarif : <strong>@Model.Prix €</strong></p>
+
+                <div class="mt-3">
+                    <label for="places" class="form-label small">Nombre de places :</label>
+                    <select id="places" class="form-select">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary w-100 mt-3">
+                    Réserver maintenant
+                </button>
+            </div>
+
+            <!-- Organisateur -->
+            <div class="card p-3">
+                <h3 class="h6 fw-semibold mb-2">Organisateur</h3>
+                <p class="small fw-medium">@Model.User.FullName</p>
+                <p class="text-muted small">@Model.User?.Email</p>
+                <a href="mailto:@Model.User?.Email" class="small text-decoration-none text-primary d-inline-block mt-2">
+                    Contacter l'organisateur
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

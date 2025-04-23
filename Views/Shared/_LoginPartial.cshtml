@@ -1,0 +1,46 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<Users> signInManager
+
+@* Préparation des variables AVANT d'écrire du HTML *@
+@{
+    string? firstLetter = null;
+    string dashboardAction = "User";
+
+    if (signInManager.IsSignedIn(User))
+    {
+        var email = User.Identity?.Name;
+        firstLetter = email?.Substring(0, 1).ToUpper();
+
+        if (User.IsInRole("Admin")) { dashboardAction = "Admin"; }
+        else if (User.IsInRole("Organisateur")) { dashboardAction = "Organisateur"; }
+    }
+}
+
+<ul class="navbar-nav ms-auto align-items-center">
+    @if (signInManager.IsSignedIn(User))
+    {
+        <li class="nav-item d-flex align-items-center gap-2">
+            <!-- Avatar cliquable -->
+            <a asp-controller="Home" asp-action="@dashboardAction" class="text-decoration-none">
+                <div class="avatar-circle me-1">
+                    <span class="initial">@firstLetter</span>
+                </div>
+            </a>
+
+            <!-- Bouton Logout -->
+            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-link nav-link text-white p-0">Logout</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-white" asp-controller="Account" asp-action="Login">Login</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white" asp-controller="Account" asp-action="Register">Register</a>
+        </li>
+    }
+</ul>

@@ -1,0 +1,122 @@
+﻿@model IEnumerable<UserApp.Models.Evenement>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<Users> UserManager
+
+
+@{
+	ViewData["Title"] = "Événements";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+	<link rel="stylesheet" href="~/css/page evenement.css" asp-append-version="true" />
+}
+
+<div class="container mt-4">
+	<form method="get" asp-action="PageEvenement" class="mb-4">
+		<input type="hidden" name="filtreDate" value="@ViewData["filtreDate"]" />
+
+		<div class="input-group mb-4">
+			<input type="text" name="searchTerm" class="form-control" placeholder="Rechercher un évènement..." value="@ViewData["searchTerm"]" />
+			<button class="btn btn-outline-secondary" type="submit">
+				<i class="bi bi-search"></i>
+			</button>
+		</div>
+
+		<div class="row">
+
+			<!-- Filtres -->
+			<div class="col-md-3">
+				<div class="card p-3 mb-4">
+					<h5>Filtres</h5>
+
+					<label for="sport">Sport</label>
+					<select name="sport" id="sport" class="form-select mb-2">
+						<option value="">Tous les sports</option>
+						<option value="Football" selected="@(ViewData["sport"]?.ToString() == "Football")">Football</option>
+						<option value="Basketball" selected="@(ViewData["sport"]?.ToString() == "Basketball")">Basketball</option>
+						<option value="Handball" selected="@(ViewData["sport"]?.ToString() == "Handball")">Handball</option>
+
+					</select>
+
+					<label for="ville">Ville</label>
+					<select name="ville" id="ville" class="form-select mb-2">
+						<option value="">Toutes les villes</option>
+						<option value="Paris" selected="@(ViewData["ville"]?.ToString() == "Paris")">Paris</option>
+						<option value="Lyon" selected="@(ViewData["ville"]?.ToString() == "Lyon")">Lyon</option>
+						<option value="Metz" selected="@(ViewData["ville"]?.ToString() == "Metz")">Metz</option>
+
+					</select>
+
+					<label for="prix">Prix maximum : <span id="prixValue"></span></label>
+					<input type="range" name="prixMax" id="prix" class="form-range" min="0" max="100" step="5"
+						   value="@ViewData["prixMax"]" oninput="updatePrixValue(this.value)" />
+					<div class="d-flex justify-content-between">
+						<small>0€</small><small>100€+</small>
+					</div>
+
+					<label for="date">Date</label>
+					<input type="date" name="date" id="date" class="form-control" value="@(ViewData["date"] != null ? ((DateTime)ViewData["date"]).ToString("yyyy-MM-dd") : "")" />
+
+					<button class="btn btn-outline-secondary mt-4" type="submit">
+						<i class="bi bi-search"></i><span class="ms-2">Filtrer</span>
+					</button>
+				</div>
+			</div>
+
+			<!-- Contenu principal -->
+			<div class="col-md-9">
+
+				<!-- Tabs : Tous / À venir / Passés -->
+				<ul class="nav nav-tabs mb-3">
+					<li class="nav-item">
+						<a class="nav-link @(ViewData["filtreDate"]?.ToString() == null ? "active" : "")"
+						   asp-action="PageEvenement" asp-route-filtreDate="">Tous</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link @(ViewData["filtreDate"]?.ToString() == "avenir" ? "active" : "")"
+						   asp-action="PageEvenement" asp-route-filtreDate="avenir">À venir</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link @(ViewData["filtreDate"]?.ToString() == "passe" ? "active" : "")"
+						   asp-action="PageEvenement" asp-route-filtreDate="passe">Passés</a>
+					</li>
+				</ul>
+
+				<!-- Liste des événements -->
+				<div class="row g-4">
+					@{
+						var currentUserId = UserManager.GetUserId(User);
+					}
+
+					@foreach (var evenement in Model)
+					{
+						<div class="col-md-6">
+							<div class="card">
+								<img src="@Url.Content(evenement.ImageUrl)" class="card-img-top event-img img-fluid" alt="@evenement.Titre" />
+								<div class="card-body">
+									<h5 class="card-title">@evenement.Titre</h5>
+									<p class="card-text">
+										<i class="bi bi-calendar-event"></i> @evenement.Date.ToString("dd MMM yyyy")<br />
+										<i class="bi bi-geo-alt"></i> @evenement.Ville<br />
+										<span class="badge bg-primary">À partir de @evenement.Prix €</span>
+									</p>
+									<a asp-action="DetailEvenement" asp-route-id="@evenement.Id" class="btn btn-primary">Voir les détails</a>
+
+									@if (evenement.UserId == currentUserId)
+									{
+										<div class="mt-2">
+											<a asp-action="Edit" asp-route-id="@evenement.Id" class="btn btn-outline-warning btn-sm me-2">Modifier</a>
+											<a asp-action="Delete" asp-route-id="@evenement.Id" class="btn btn-outline-danger btn-sm">Supprimer</a>
+										</div>
+									}
+
+								</div>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	</form>
+</div>

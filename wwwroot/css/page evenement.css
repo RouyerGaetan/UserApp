@@ -1,0 +1,7 @@
+﻿.event-img {
+    height: 200px; /* ou 250px selon ta mise en page */
+    width: 100%; /* prend toute la largeur de la carte */
+    object-fit: cover; /* recadre l'image pour bien remplir */
+    border-top-left-radius: 0.5rem; /* arrondis optionnels */
+    border-top-right-radius: 0.5rem;
+}

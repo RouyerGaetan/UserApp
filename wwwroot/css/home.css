@@ -1,0 +1,24 @@
+﻿/* Supprimer les marges/paddings des éléments racine */
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+/* Supprimer le padding des containers Bootstrap */
+.container-fluid,
+.container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Empêche les scrollbars horizontaux accidentels */
+body {
+    overflow-x: hidden;
+}
+
+/* S'assure que la hero section prend vraiment 100% de la largeur */
+.hero-section {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw;
+}

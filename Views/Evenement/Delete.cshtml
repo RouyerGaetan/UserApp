@@ -1,0 +1,31 @@
+﻿@model UserApp.Models.Evenement
+
+@{
+    ViewData["Title"] = "Supprimer l'événement";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>Supprimer l'événement</h2>
+
+    <div class="alert alert-danger">
+        Es-tu sûr de vouloir supprimer l’événement : <strong>@Model.Titre</strong> ?
+    </div>
+
+    <dl class="row">
+        <dt class="col-sm-3">Date</dt>
+        <dd class="col-sm-9">@Model.Date.ToString("dd MMM yyyy")</dd>
+
+        <dt class="col-sm-3">Ville</dt>
+        <dd class="col-sm-9">@Model.Ville</dd>
+
+        <dt class="col-sm-3">Prix</dt>
+        <dd class="col-sm-9">@Model.Prix €</dd>
+    </dl>
+
+    <form asp-action="DeleteConfirmed" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Supprimer</button>
+        <a asp-action="PageEvenement" class="btn btn-secondary ms-2">Annuler</a>
+    </form>
+</div>
