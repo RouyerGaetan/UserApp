@@ -205,5 +205,11 @@ namespace UserApp.Controllers
 
             return View(evenement);
         }
+
+        [AllowAnonymous]
+        public IActionResult VueApiEvenements()
+        {
+            return View();
+        }
     }
 }
