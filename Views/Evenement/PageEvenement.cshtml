@@ -89,29 +89,43 @@
 						var currentUserId = UserManager.GetUserId(User);
 					}
 
-					@foreach (var evenement in Model)
+					<!-- Zone modifiée : vérifie s'il y a des évènements -->
+					@if (Model.Any())
 					{
-						<div class="col-md-6">
-							<div class="card">
-								<img src="@Url.Content(evenement.ImageUrl)" class="card-img-top event-img img-fluid" alt="@evenement.Titre" />
-								<div class="card-body">
-									<h5 class="card-title">@evenement.Titre</h5>
-									<p class="card-text">
-										<i class="bi bi-calendar-event"></i> @evenement.Date.ToString("dd MMM yyyy")<br />
-										<i class="bi bi-geo-alt"></i> @evenement.Ville<br />
-										<span class="badge bg-primary">À partir de @evenement.Prix €</span>
-									</p>
-									<a asp-action="DetailEvenement" asp-route-id="@evenement.Id" class="btn btn-primary">Voir les détails</a>
+						<div class="row g-4">
+							@foreach (var evenement in Model)
+							{
+								<div class="col-md-6">
+									<div class="card">
+										<img src="@Url.Content(evenement.ImageUrl)" class="card-img-top event-img img-fluid" alt="@evenement.Titre" />
+										<div class="card-body">
+											<h5 class="card-title">@evenement.Titre</h5>
+											<p class="card-text">
+												<i class="bi bi-calendar-event"></i> @evenement.Date.ToString("dd MMM yyyy")<br />
+												<i class="bi bi-geo-alt"></i> @evenement.Ville<br />
+												<span class="badge bg-primary">À partir de @evenement.Prix €</span>
+											</p>
+											<a asp-action="Detail" asp-route-id="@evenement.Id" class="btn btn-primary">Voir les détails</a>
 
-									@if (evenement.UserId == currentUserId)
-									{
-										<div class="mt-2">
-											<a asp-action="Edit" asp-route-id="@evenement.Id" class="btn btn-outline-warning btn-sm me-2">Modifier</a>
-											<a asp-action="Delete" asp-route-id="@evenement.Id" class="btn btn-outline-danger btn-sm">Supprimer</a>
+											@if (evenement.UserId == currentUserId)
+											{
+												<div class="mt-2">
+													<a asp-action="Edit" asp-route-id="@evenement.Id" class="btn btn-outline-warning btn-sm me-2">Modifier</a>
+													<a asp-action="Delete" asp-route-id="@evenement.Id" class="btn btn-outline-danger btn-sm">Supprimer</a>
+												</div>
+											}
+
 										</div>
-									}
+									</div>
 								</div>
-							</div>
+							}
+						</div>
+					}
+					else
+					{
+						<!-- Bloc ajouté : affiché si aucun événement -->
+						<div class="d-flex justify-content-center align-items-center" style="height: 300px;">
+							<h3 class="text-muted">Aucun évènement disponible</h3>
 						</div>
 					}
 				</div>

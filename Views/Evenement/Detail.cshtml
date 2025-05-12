@@ -1,4 +1,6 @@
-﻿<div class="container py-4">
+﻿@model UserApp.Models.Evenement
+
+<div class="container py-4">
     <a asp-action="PageEvenement" class="text-decoration-none text-primary small mb-3 d-inline-block">← Retour aux événements</a>
 
     <div class="row g-4">
@@ -16,7 +18,7 @@
                     <p class="text-muted small mb-0">@Model.Sport</p>
                 </div>
                 <div class="text-muted small mt-2 mt-md-0">
-                    Organisé par <strong>@Model.User.FullName</strong>
+                    Organisé par <strong>@(Model.User?.FullName ?? "Utilisateur inconnu")</strong>
                 </div>
             </div>
 
@@ -56,16 +58,16 @@
                     </select>
                 </div>
 
-                <button class="btn btn-primary w-100 mt-3">
+                <a asp-controller="Reservation" asp-action="Create" asp-route-evenementId="@Model.Id" class="btn btn-primary w-100 mt-3">
                     Réserver maintenant
-                </button>
+                </a>
             </div>
 
             <!-- Organisateur -->
             <div class="card p-3">
                 <h3 class="h6 fw-semibold mb-2">Organisateur</h3>
-                <p class="small fw-medium">@Model.User.FullName</p>
-                <p class="text-muted small">@Model.User?.Email</p>
+                <p class="small fw-medium">@Model.User?.FullName</p>
+                <p class="text-muted small">@(Model.User?.Email ?? "Email non disponible")</p>
                 <a href="mailto:@Model.User?.Email" class="small text-decoration-none text-primary d-inline-block mt-2">
                     Contacter l'organisateur
                 </a>

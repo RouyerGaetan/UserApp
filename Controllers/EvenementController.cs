@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UserApp.Data;
 using UserApp.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace UserApp.Controllers
 {
@@ -13,81 +12,88 @@ namespace UserApp.Controllers
     {
         private readonly AppDbContext _context;
         private readonly UserManager<Users> _userManager;
+        private readonly ILogger<EvenementController> _logger;
 
-        public EvenementController(AppDbContext context, UserManager<Users> userManager)
+        public EvenementController(AppDbContext context, UserManager<Users> userManager, ILogger<EvenementController> logger)
         {
             _context = context;
             _userManager = userManager;
+            _logger = logger;
         }
 
-        // Affiche le formulaire
-        public IActionResult CreateEvenement()
+        // Méthode privée pour centraliser les sports
+        private List<string> GetSports()
         {
-            ViewBag.Sports = new List<string>
+            return new List<string>
             {
-                "Football",
-                "Basketball",
-                "Tennis",
-                "Natation",
-                "Cyclisme",
-                "Course",
-                "Rugby",
-                "Handball",
-                "Volley",
-                "Autre"
+                "Football", "Basketball", "Tennis", "Natation", "Cyclisme", "Course", "Rugby", "Handball", "Volley", "Autre"
             };
+        }
 
+        // Méthode privée pour vérifier que l'utilisateur est bien l'organisateur de l'événement
+        private async Task<bool> EstOrganisateurDeLEvenement(int evenementId)
+        {
+            Users? user = await _userManager.GetUserAsync(User);
+            Evenement? evenement = await _context.Evenements.FindAsync(evenementId);
+            return evenement != null && evenement.UserId == user?.Id;
+        }
+
+        // GET : Formulaire de création
+        [HttpGet]
+        public IActionResult Create()
+        {
+            ViewBag.Sports = GetSports();
             return View();
         }
 
-        // Traite le formulaire
+        // POST : Création
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Evenement evenement)
         {
-            var user = await _userManager.GetUserAsync(User);
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Sports = GetSports();
+                return View(evenement);
+            }
+
+            Users? user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
 
             // Associer l'événement à l'organisateur connecté
             evenement.UserId = user.Id;
-
             _context.Evenements.Add(evenement);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("PageEvenement", "Evenement");
+            return RedirectToAction(nameof(PageEvenement));
         }
-        // GET: /Evenement/Edit/5
+
+        // GET: Edition
         public async Task<IActionResult> Edit(int id)
         {
-            var evenement = await _context.Evenements.FindAsync(id);
-            var user = await _userManager.GetUserAsync(User);
+            Evenement? evenement = await _context.Evenements.FindAsync(id);
+            Users? user = await _userManager.GetUserAsync(User);
 
             if (evenement == null || evenement.UserId != user.Id)
-                return Unauthorized(); // Bloque l'accès si ce n'est pas son événement
+                return Unauthorized(); // Accès interdit si ce n'est pas l'organisateur
 
-            ViewBag.Sports = new List<string>
-            {
-                "Football",
-                "Basketball",
-                "Tennis",
-                "Natation",
-                "Cyclisme",
-                "Course",
-                "Rugby",
-                "Handball",
-                "Volley",
-                "Autre"
-            };
-
+            ViewBag.Sports = GetSports();
             return View(evenement);
         }
 
-        // POST: /Evenement/Edit/5
+        // POST: Edition
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Evenement updatedEvent)
         {
-            var user = await _userManager.GetUserAsync(User);
-            var evenement = await _context.Evenements.FindAsync(id);
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Sports = GetSports();
+                return View(updatedEvent);
+            }
+
+            Evenement? evenement = await _context.Evenements.FindAsync(id);
+            Users? user = await _userManager.GetUserAsync(User);
 
             if (evenement == null || evenement.UserId != user.Id)
                 return Unauthorized();
@@ -97,20 +103,19 @@ namespace UserApp.Controllers
             evenement.Ville = updatedEvent.Ville;
             evenement.Date = updatedEvent.Date;
             evenement.Sport = updatedEvent.Sport;
-            evenement.Date = updatedEvent.Date;
             evenement.Prix = updatedEvent.Prix;
             evenement.ImageUrl = updatedEvent.ImageUrl;
 
             _context.Update(evenement);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("PageEvenement");
+            return RedirectToAction(nameof(PageEvenement));
         }
-        // GET: /Evenement/Delete/5
+        // GET: Suppression (confirmation)
         public async Task<IActionResult> Delete(int id)
         {
-            var evenement = await _context.Evenements.FindAsync(id);
-            var user = await _userManager.GetUserAsync(User);
+            Evenement? evenement = await _context.Evenements.FindAsync(id);
+            Users? user = await _userManager.GetUserAsync(User);
 
             if (evenement == null || evenement.UserId != user.Id)
                 return Unauthorized();
@@ -118,13 +123,13 @@ namespace UserApp.Controllers
             return View(evenement); // Confirme la suppression
         }
 
-        // POST: /Evenement/DeleteConfirmed/5
+        // POST: Supression confirmée
         [HttpPost, ActionName("DeleteConfirmed")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var evenement = await _context.Evenements.FindAsync(id);
-            var user = await _userManager.GetUserAsync(User);
+            Evenement? evenement = await _context.Evenements.FindAsync(id);
+            Users? user = await _userManager.GetUserAsync(User);
 
             if (evenement == null || evenement.UserId != user.Id)
                 return Unauthorized();
@@ -132,13 +137,14 @@ namespace UserApp.Controllers
             _context.Evenements.Remove(evenement);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("PageEvenement");
+            return RedirectToAction(nameof(PageEvenement));
         }
 
+        // GET : Liste des évènements (accesible à tous)
         [AllowAnonymous]
         public async Task<IActionResult> PageEvenement(string searchTerm, string sport, string ville, int? prixMax, DateTime? date, string filtreDate)
         {
-            var evenements = _context.Evenements.AsQueryable();
+            IQueryable<Evenement> evenements = _context.Evenements;
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
@@ -170,7 +176,7 @@ namespace UserApp.Controllers
 
             if (!string.IsNullOrEmpty(filtreDate))
             {
-                var now = DateTime.Now;
+                DateTime now = DateTime.Now;
 
                 if (filtreDate == "avenir")
                 {
@@ -192,24 +198,22 @@ namespace UserApp.Controllers
 
             return View(await evenements.ToListAsync());
         }
-        public async Task<IActionResult> DetailEvenement(int id)
+
+        // GET : Détail d'un évènement
+        [AllowAnonymous]
+        public async Task<IActionResult> Detail(int id)
         {
-            var evenement = await _context.Evenements
-                .Include(e => e.User) // pour l'organisateur
+            Evenement? evenement = await _context.Evenements
+                .Include(e => e.User)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
             if (evenement == null)
             {
+                _logger.LogWarning("Détail de l’événement introuvable pour l’ID {Id}", id); // Logging
                 return NotFound();
             }
 
             return View(evenement);
-        }
-
-        [AllowAnonymous]
-        public IActionResult VueApiEvenements()
-        {
-            return View();
         }
     }
 }

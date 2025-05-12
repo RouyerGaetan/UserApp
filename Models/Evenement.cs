@@ -18,4 +18,5 @@ namespace UserApp.Models
         public string ImageUrl { get; set; } = "default-image.jpg";
         public string? UserId { get; set; }
     }
+
 }

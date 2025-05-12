@@ -1,60 +1,68 @@
 ﻿@model UserApp.Models.Evenement
 
 @{
-	ViewData["Title"] = "Modifier l'événement";
-	Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Modifier l'événement";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container mt-4">
-	<h2>Modifier l'événement</h2>
+    <h2>Modifier l'événement</h2>
 
-	<form asp-action="Edit" method="post">
-		<input type="hidden" asp-for="Id" />
+    <form asp-action="Edit" method="post">
+        @* Protection CSRF *@
+        @Html.AntiForgeryToken()
 
-		<div class="mb-3">
-			<label asp-for="Titre" class="form-label"></label>
-			<input asp-for="Titre" class="form-control" />
-		</div>
+        <input type="hidden" asp-for="Id" />
 
-		<div class="mb-3">
-			<label asp-for="Description" class="form-label"></label>
-			<textarea asp-for="Description" class="form-control"></textarea>
-		</div>
+        <div class="mb-3">
+            <label asp-for="Titre" class="form-label"></label>
+            <input asp-for="Titre" class="form-control" />
+            <span asp-validation-for="Titre" class="text-danger"></span>
+        </div>
 
-		<div class="mb-3">
-			<label asp-for="Ville" class="form-label"></label>
-			<input asp-for="Ville" class="form-control" />
-		</div>
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
 
-		<div class="mb-3">
-			<label asp-for="Date" class="form-label"></label>
-			<input asp-for="Date" class="form-control" type="date" />
-		</div>
+        <div class="mb-3">
+            <label asp-for="Ville" class="form-label"></label>
+            <input asp-for="Ville" class="form-control" />
+            <span asp-validation-for="Ville" class="text-danger"></span>
+        </div>
 
-		<div class="form-group">
-			<label for="Sport">Sport</label>
-			<select class="form-control" asp-for="Sport">
-				<option value="">-- Sélectionnez un sport --</option>
-				@foreach (var sport in ViewBag.Sports as List<string>)
-				{
-					<option value="@sport" selected="@(Model.Sport == sport)">
-						@sport
-					</option>
-				}
-			</select>
-		</div>
+        <div class="mb-3">
+            <label asp-for="Date" class="form-label"></label>
+            <input asp-for="Date" class="form-control" type="datetime-local" />
+            <span asp-validation-for="Date" class="text-danger"></span>
+        </div>
 
-		<div class="mb-3">
-			<label asp-for="Prix" class="form-label"></label>
-			<input asp-for="Prix" class="form-control" type="number" step="0.01" />
-		</div>
+        <div class="mb-3">
+            <label asp-for="Sport" class="form-label"></label>
+            <select asp-for="Sport" class="form-control" asp-items="@(new SelectList(ViewBag.Sports as List<string>, Model.Sport))">
+                <option value="">-- Sélectionnez un sport --</option>
+            </select>
+            <span asp-validation-for="Sport" class="text-danger"></span>
+        </div>
 
-		<div class="mb-3">
-			<label asp-for="ImageUrl" class="form-label"></label>
-			<input asp-for="ImageUrl" class="form-control" />
-		</div>
+        <div class="mb-3">
+            <label asp-for="Prix" class="form-label"></label>
+            <input asp-for="Prix" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="Prix" class="text-danger"></span>
+        </div>
 
-		<button type="submit" class="btn btn-success">Enregistrer</button>
-		<a asp-action="PageEvenement" class="btn btn-secondary ms-2">Annuler</a>
-	</form>
+        <div class="mb-3">
+            <label asp-for="ImageUrl" class="form-label"></label>
+            <input asp-for="ImageUrl" class="form-control" type="url" />
+            <span asp-validation-for="ImageUrl" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-success">Enregistrer</button>
+        <a asp-action="PageEvenement" class="btn btn-secondary ms-2">Annuler</a>
+    </form>
 </div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
