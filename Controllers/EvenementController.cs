@@ -60,6 +60,8 @@ namespace UserApp.Controllers
             Users? user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
 
+            AssignerImageParDefaut(evenement);
+
             // Associer l'événement à l'organisateur connecté
             evenement.UserId = user.Id;
             _context.Evenements.Add(evenement);
@@ -106,6 +108,7 @@ namespace UserApp.Controllers
             evenement.Prix = updatedEvent.Prix;
             evenement.ImageUrl = updatedEvent.ImageUrl;
 
+            AssignerImageParDefaut(evenement);
             _context.Update(evenement);
             await _context.SaveChangesAsync();
 
@@ -214,6 +217,13 @@ namespace UserApp.Controllers
             }
 
             return View(evenement);
+        }
+        private void AssignerImageParDefaut(Evenement evenement)
+        {
+            if (string.IsNullOrWhiteSpace(evenement.ImageUrl))
+            {
+                evenement.ImageUrl = "/images/default-event.jfif";
+            }
         }
     }
 }

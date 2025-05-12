@@ -15,8 +15,7 @@ namespace UserApp.Models
         [Precision(10, 2)] // 👈 max 99999999.99
         public Users? User { get; set; }
         public decimal Prix { get; set; }
-        public string ImageUrl { get; set; } = "default-image.jpg";
+        public string? ImageUrl { get; set; }
         public string? UserId { get; set; }
     }
-
 }
