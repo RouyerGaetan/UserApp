@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UserApp.Data;
 using UserApp.Models;
+using UserApp.Services;
 
 namespace UserApp.Controllers
 {
@@ -13,21 +14,14 @@ namespace UserApp.Controllers
         private readonly AppDbContext _context;
         private readonly UserManager<Users> _userManager;
         private readonly ILogger<EvenementController> _logger;
+        private readonly ISportService _sportService;
 
-        public EvenementController(AppDbContext context, UserManager<Users> userManager, ILogger<EvenementController> logger)
+        public EvenementController(AppDbContext context, UserManager<Users> userManager, ILogger<EvenementController> logger, ISportService sportService)
         {
             _context = context;
             _userManager = userManager;
             _logger = logger;
-        }
-
-        // Méthode privée pour centraliser les sports
-        private List<string> GetSports()
-        {
-            return new List<string>
-            {
-                "Football", "Basketball", "Tennis", "Natation", "Cyclisme", "Course", "Rugby", "Handball", "Volley", "Autre"
-            };
+            _sportService = sportService;
         }
 
         // Méthode privée pour vérifier que l'utilisateur est bien l'organisateur de l'événement
@@ -42,7 +36,7 @@ namespace UserApp.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            ViewBag.Sports = GetSports();
+            ViewBag.Sports = _sportService.GetAllSports();
             return View();
         }
 
@@ -53,7 +47,7 @@ namespace UserApp.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Sports = GetSports();
+                ViewBag.Sports = _sportService.GetAllSports();
                 return View(evenement);
             }
 
@@ -79,7 +73,12 @@ namespace UserApp.Controllers
             if (evenement == null || evenement.UserId != user.Id)
                 return Unauthorized(); // Accès interdit si ce n'est pas l'organisateur
 
-            ViewBag.Sports = GetSports();
+            ViewBag.Sports = _sportService.GetAllSports();
+
+            if(evenement.ImageUrl == "/images/default-event.jfif")
+            {
+                evenement.ImageUrl = string.Empty;
+            }
             return View(evenement);
         }
 
@@ -90,7 +89,7 @@ namespace UserApp.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Sports = GetSports();
+                ViewBag.Sports = _sportService.GetAllSports();
                 return View(updatedEvent);
             }
 
@@ -198,6 +197,8 @@ namespace UserApp.Controllers
             ViewData["prixMax"] = prixMax;
             ViewData["date"] = date;
             ViewData["filtreDate"] = filtreDate;
+
+            ViewBag.Sports = _sportService.GetAllSports();
 
             return View(await evenements.ToListAsync());
         }

@@ -28,6 +28,8 @@ builder.Services.AddIdentity<Users, IdentityRole>(options =>
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddScoped<ISportService, SportService>();
+
 var app = builder.Build();
 
 await SeedServices.SeedDatabase(app.Services);

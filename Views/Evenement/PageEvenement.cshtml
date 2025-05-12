@@ -33,10 +33,12 @@
 					<label for="sport">Sport</label>
 					<select name="sport" id="sport" class="form-select mb-2">
 						<option value="">Tous les sports</option>
-						<option value="Football" selected="@(ViewData["sport"]?.ToString() == "Football")">Football</option>
-						<option value="Basketball" selected="@(ViewData["sport"]?.ToString() == "Basketball")">Basketball</option>
-						<option value="Handball" selected="@(ViewData["sport"]?.ToString() == "Handball")">Handball</option>
-
+						@foreach (var sport in (List<string>)ViewBag.Sports)
+						{
+							<option value="@sport" selected="@(ViewData["sport"]?.ToString() == sport)">
+								@sport
+							</option>
+						}
 					</select>
 
 					<label for="ville">Ville</label>
@@ -45,7 +47,6 @@
 						<option value="Paris" selected="@(ViewData["ville"]?.ToString() == "Paris")">Paris</option>
 						<option value="Lyon" selected="@(ViewData["ville"]?.ToString() == "Lyon")">Lyon</option>
 						<option value="Metz" selected="@(ViewData["ville"]?.ToString() == "Metz")">Metz</option>
-
 					</select>
 
 					<label for="prix">Prix maximum : <span id="prixValue"></span></label>
