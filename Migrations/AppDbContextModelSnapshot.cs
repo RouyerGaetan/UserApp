@@ -163,6 +163,9 @@ namespace UserApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AvailableSeats")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
@@ -180,6 +183,9 @@ namespace UserApp.Migrations
 
                     b.Property<string>("Titre")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TotalSeats")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");

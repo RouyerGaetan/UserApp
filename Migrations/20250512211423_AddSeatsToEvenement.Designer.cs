@@ -12,8 +12,8 @@ using UserApp.Data;
 namespace UserApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250512191914_MakeImageUrlNullable")]
-    partial class MakeImageUrlNullable
+    [Migration("20250512211423_AddSeatsToEvenement")]
+    partial class AddSeatsToEvenement
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -166,6 +166,9 @@ namespace UserApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AvailableSeats")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
@@ -184,6 +187,9 @@ namespace UserApp.Migrations
                     b.Property<string>("Titre")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TotalSeats")
+                        .HasColumnType("int");
+
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
@@ -195,49 +201,6 @@ namespace UserApp.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Evenements");
-                });
-
-            modelBuilder.Entity("UserApp.Models.Sport", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Sports");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Football"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Basketball"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Tennis"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Rugby"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Handball"
-                        });
                 });
 
             modelBuilder.Entity("UserApp.Models.Users", b =>

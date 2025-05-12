@@ -17,5 +17,7 @@ namespace UserApp.Models
         public decimal Prix { get; set; }
         public string? ImageUrl { get; set; }
         public string? UserId { get; set; }
+        public int TotalSeats { get; set; }
+        public int AvailableSeats { get; set; }
     }
 }

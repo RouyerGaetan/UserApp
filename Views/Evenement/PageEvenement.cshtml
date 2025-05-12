@@ -13,6 +13,13 @@
 }
 
 <div class="container mt-4">
+	@if (TempData["Message"] != null)
+	{
+		<div class="alert alert-danger alert-dismissible fade show" role="alert">
+			@TempData["Message"]
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	}
 	<form method="get" asp-action="PageEvenement" class="mb-4">
 		<input type="hidden" name="filtreDate" value="@ViewData["filtreDate"]" />
 

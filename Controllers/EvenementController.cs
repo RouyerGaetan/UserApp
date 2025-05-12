@@ -55,6 +55,7 @@ namespace UserApp.Controllers
             if (user == null) return Unauthorized();
 
             AssignerImageParDefaut(evenement);
+            evenement.AvailableSeats = evenement.TotalSeats;
 
             // Associer l'événement à l'organisateur connecté
             evenement.UserId = user.Id;
@@ -96,8 +97,10 @@ namespace UserApp.Controllers
             Evenement? evenement = await _context.Evenements.FindAsync(id);
             Users? user = await _userManager.GetUserAsync(User);
 
-            if (evenement == null || evenement.UserId != user.Id)
+            if (evenement == null || user == null || evenement.UserId != user.Id)
                 return Unauthorized();
+
+            int reservedSeats = evenement.TotalSeats - evenement.AvailableSeats;
 
             evenement.Titre = updatedEvent.Titre;
             evenement.Description = updatedEvent.Description;
@@ -106,12 +109,30 @@ namespace UserApp.Controllers
             evenement.Sport = updatedEvent.Sport;
             evenement.Prix = updatedEvent.Prix;
             evenement.ImageUrl = updatedEvent.ImageUrl;
+            evenement.TotalSeats = updatedEvent.TotalSeats;
+
+            evenement.AvailableSeats = CalculerPlacesDisponibles(updatedEvent.TotalSeats, reservedSeats);
+
+            // Vérification que le nombre de places disponibles ne soit pas négatif
+            if (evenement.AvailableSeats < 0)
+            {
+                ModelState.AddModelError("TotalSeats", "Impossible de définir moins de places que celles déjà réservées.");
+                ViewBag.Sports = _sportService.GetAllSports();
+                return View(updatedEvent);
+            }
 
             AssignerImageParDefaut(evenement);
             _context.Update(evenement);
             await _context.SaveChangesAsync();
 
+            TempData["Message"] = "L'événement a bien été modifié.";
+            TempData["MessageType"] = "sucess";
+
             return RedirectToAction(nameof(PageEvenement));
+        }
+        private int CalculerPlacesDisponibles(int totalSeats, int reservedSeats)
+        {
+            return totalSeats - reservedSeats;
         }
         // GET: Suppression (confirmation)
         public async Task<IActionResult> Delete(int id)
@@ -138,6 +159,9 @@ namespace UserApp.Controllers
 
             _context.Evenements.Remove(evenement);
             await _context.SaveChangesAsync();
+
+            TempData["Message"] = "L'événement a bien été supprimé.";
+            TempData["MessageType"] = "error";
 
             return RedirectToAction(nameof(PageEvenement));
         }

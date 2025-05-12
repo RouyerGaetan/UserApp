@@ -9,7 +9,6 @@
     <h2>Modifier l'événement</h2>
 
     <form asp-action="Edit" method="post">
-        @* Protection CSRF *@
         @Html.AntiForgeryToken()
 
         <input type="hidden" asp-for="Id" />
@@ -50,6 +49,17 @@
             <label asp-for="Prix" class="form-label"></label>
             <input asp-for="Prix" class="form-control" type="number" step="0.01" />
             <span asp-validation-for="Prix" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="TotalSeats" class="form-label"></label>
+            <input asp-for="TotalSeats" class="form-control" />
+            <span asp-validation-for="TotalSeats" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="AvailableSeats" class="form-label"></label>
+            <input asp-for="AvailableSeats" class="form-control" readonly />
         </div>
 
         <div class="mb-3">
