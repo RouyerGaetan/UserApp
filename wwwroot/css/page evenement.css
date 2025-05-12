@@ -5,3 +5,31 @@
     border-top-left-radius: 0.5rem; /* arrondis optionnels */
     border-top-right-radius: 0.5rem;
 }
+.sold-out-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(169, 169, 169, 0.7); /* Fond gris semi-transparent */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Ombre portée pour l'effet de superposition */
+    pointer-events: none; /* Empêche les interactions avec la carte */
+}
+
+.sold-out-text {
+    font-size: 3rem;
+    color: red; /* Texte en rouge */
+    font-weight: bold;
+    text-transform: uppercase;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg); /* Rotation du texte en diagonale */
+    white-space: nowrap;
+    text-align: center;
+}
+
+

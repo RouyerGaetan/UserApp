@@ -7,6 +7,7 @@ namespace UserApp.Data
     public class AppDbContext : IdentityDbContext<Users>
     {
         public DbSet<Evenement> Evenements { get; set; }
+        public DbSet<Reservation> Reservations { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 

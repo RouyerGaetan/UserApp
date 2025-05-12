@@ -1,6 +1,18 @@
 ﻿@model UserApp.Models.Evenement
 
 <div class="container py-4">
+    @if (TempData["Message"] != null)
+    {
+        var messageType = TempData["MessageType"]?.ToString() ?? "success";  // Défaut "success" si aucun type spécifié
+
+        <div class="alert @(
+        messageType == "success" ? "alert-success" :
+        messageType == "error" ? "alert-danger" :
+        "alert-info") alert-dismissible fade show" role="alert">
+            @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
     <a asp-action="PageEvenement" class="text-decoration-none text-primary small mb-3 d-inline-block">← Retour aux événements</a>
 
     <div class="row g-4">
@@ -50,17 +62,21 @@
                 <h3 class="h6 fw-semibold mb-2">Réservation</h3>
                 <p class="small">Tarif : <strong>@Model.Prix €</strong></p>
 
-                <div class="mt-3">
-                    <label for="places" class="form-label small">Nombre de places :</label>
-                    <select id="places" class="form-select">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                    </select>
-                </div>
+                 @if (Model.AvailableSeats > 0)
+                 {
+                    <p class="small text-muted">
+                        Nombre de places disponibles : <strong>@Model.AvailableSeats</strong>
+                    </p>
 
-                <a asp-controller="Reservation" asp-action="Create" asp-route-evenementId="@Model.Id" class="btn btn-primary w-100 mt-3">
-                    Réserver maintenant
-                </a>
+                    <a asp-controller="Reservation" asp-action="Create" asp-route-evenementId="@Model.Id" class="btn btn-primary w-100 mt-3">
+                        Réserver maintenant
+                    </a>
+                 }
+                 else
+                 {
+                    <p class="text-danger fw-semibold mt-2">Cet événement est complet.</p>
+                    <button class="btn btn-secondary w-100 mt-3" disabled>Réserver maintenant</button>
+                 }
             </div>
 
             <!-- Organisateur -->

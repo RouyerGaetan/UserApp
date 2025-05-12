@@ -15,7 +15,12 @@
 <div class="container mt-4">
 	@if (TempData["Message"] != null)
 	{
-		<div class="alert alert-danger alert-dismissible fade show" role="alert">
+		var messageType = TempData["MessageType"]?.ToString() ?? "success";  // Défaut "success" si aucun type spécifié
+
+		<div class="alert @(
+        messageType == "success" ? "alert-success" :
+        messageType == "error" ? "alert-danger" :
+        "alert-info") alert-dismissible fade show" role="alert">
 			@TempData["Message"]
 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>
@@ -112,6 +117,10 @@
 												<i class="bi bi-calendar-event"></i> @evenement.Date.ToString("dd MMM yyyy")<br />
 												<i class="bi bi-geo-alt"></i> @evenement.Ville<br />
 												<span class="badge bg-primary">À partir de @evenement.Prix €</span>
+											<p class="small text-muted mt-2">
+												<strong>Places restantes :</strong> @evenement.AvailableSeats
+											</p>
+
 											</p>
 											<a asp-action="Detail" asp-route-id="@evenement.Id" class="btn btn-primary">Voir les détails</a>
 
