@@ -9,9 +9,9 @@ using UserApp.Models;
 public class DashboardController : Controller
 {
     private readonly AppDbContext _context;
-    private readonly UserManager<Users> _userManager;
+    private readonly UserManager<User> _userManager;
 
-    public DashboardController(AppDbContext context, UserManager<Users> userManager)
+    public DashboardController(AppDbContext context, UserManager<User> userManager)
     {
         _context = context;
         _userManager = userManager;

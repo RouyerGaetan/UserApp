@@ -8,11 +8,11 @@ namespace UserApp.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly SignInManager<Users> _signInManager;
-        private readonly UserManager<Users> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AccountController(SignInManager<Users> signInManager, UserManager<Users> userManager, RoleManager<IdentityRole> roleManager)
+        public AccountController(SignInManager<User> signInManager, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -57,13 +57,14 @@ namespace UserApp.Controllers
                 return View(model);
             }
 
-            var user = new Users
+            var user = new User
             {
-                FullName = model.Name,
                 UserName = model.Email,
                 NormalizedUserName = model.Email.ToUpper(),
                 Email = model.Email,
-                NormalizedEmail = model.Email.ToUpper()
+                NormalizedEmail = model.Email.ToUpper(),
+                // Ajoute le nom du club uniquement si c'est un organisateur
+                NomDuClub = model.Role == "Organisateur" ? model.NomDuClub : null
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);

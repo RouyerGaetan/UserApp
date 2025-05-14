@@ -4,7 +4,7 @@ using UserApp.Models;
 
 namespace UserApp.Data
 {
-    public class AppDbContext : IdentityDbContext<Users>
+    public class AppDbContext : IdentityDbContext<User>
     {
         public DbSet<Evenement> Evenements { get; set; }
         public DbSet<Reservation> Reservations { get; set; }

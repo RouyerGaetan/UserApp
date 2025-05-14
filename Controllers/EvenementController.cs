@@ -12,11 +12,11 @@ namespace UserApp.Controllers
     public class EvenementController : Controller
     {
         private readonly AppDbContext _context;
-        private readonly UserManager<Users> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<EvenementController> _logger;
         private readonly ISportService _sportService;
 
-        public EvenementController(AppDbContext context, UserManager<Users> userManager, ILogger<EvenementController> logger, ISportService sportService)
+        public EvenementController(AppDbContext context, UserManager<User> userManager, ILogger<EvenementController> logger, ISportService sportService)
         {
             _context = context;
             _userManager = userManager;
@@ -27,7 +27,7 @@ namespace UserApp.Controllers
         // Méthode privée pour vérifier que l'utilisateur est bien l'organisateur de l'événement
         private async Task<bool> EstOrganisateurDeLEvenement(int evenementId)
         {
-            Users? user = await _userManager.GetUserAsync(User);
+            User? user = await _userManager.GetUserAsync(User);
             Evenement? evenement = await _context.Evenements.FindAsync(evenementId);
             return evenement != null && evenement.UserId == user?.Id;
         }
@@ -51,7 +51,7 @@ namespace UserApp.Controllers
                 return View(evenement);
             }
 
-            Users? user = await _userManager.GetUserAsync(User);
+            User? user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
 
             evenement.AvailableSeats = evenement.TotalSeats;
@@ -68,7 +68,7 @@ namespace UserApp.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             Evenement? evenement = await _context.Evenements.FindAsync(id);
-            Users? user = await _userManager.GetUserAsync(User);
+            User? user = await _userManager.GetUserAsync(User);
 
             if (evenement == null || evenement.UserId != user.Id)
                 return Unauthorized(); // Accès interdit si ce n'est pas l'organisateur
@@ -94,7 +94,7 @@ namespace UserApp.Controllers
             }
 
             Evenement? evenement = await _context.Evenements.FindAsync(id);
-            Users? user = await _userManager.GetUserAsync(User);
+            User? user = await _userManager.GetUserAsync(User);
 
             if (evenement == null || user == null || evenement.UserId != user.Id)
                 return Unauthorized();
@@ -136,7 +136,7 @@ namespace UserApp.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             Evenement? evenement = await _context.Evenements.FindAsync(id);
-            Users? user = await _userManager.GetUserAsync(User);
+            User? user = await _userManager.GetUserAsync(User);
 
             if (evenement == null || evenement.UserId != user.Id)
                 return Unauthorized();
@@ -150,7 +150,7 @@ namespace UserApp.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             Evenement? evenement = await _context.Evenements.FindAsync(id);
-            Users? user = await _userManager.GetUserAsync(User);
+            User? user = await _userManager.GetUserAsync(User);
 
             if (evenement == null || evenement.UserId != user.Id)
                 return Unauthorized();

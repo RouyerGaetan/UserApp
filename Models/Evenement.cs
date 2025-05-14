@@ -13,7 +13,7 @@ namespace UserApp.Models
         public string? Sport { get; set; }
         public DateTime Date { get; set; }
         [Precision(10, 2)] // 👈 max 99999999.99
-        public Users? User { get; set; }
+        public User? User { get; set; }
         public decimal Prix { get; set; }
         public string? ImageUrl { get; set; }
         public string? UserId { get; set; }

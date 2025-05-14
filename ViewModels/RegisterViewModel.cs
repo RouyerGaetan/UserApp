@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using UsersApp.Attributes;
 
 namespace UsersApp.ViewModels
 {
@@ -24,5 +25,8 @@ namespace UsersApp.ViewModels
 
         [Required(ErrorMessage = "Please select a role.")]
         public string Role { get; set; }  // Nouvelle propriété pour choisir le rôle
+
+        [RequiredIfOrganisateur(ErrorMessage = "Le nom du club est requis pour les organisateurs.")]
+        public string? NomDuClub { get; set; }  // Peut rester nullable en C#, validation fera le reste
     }
 }

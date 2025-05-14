@@ -13,6 +13,20 @@
 			@Html.AntiForgeryToken()
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 			<div class="mb-3">
+				<label asp-for="Role" class="form-label">Role</label>
+				<select asp-for="Role" class="form-control">
+					<option value="">-- Select Role --</option>
+					<option value="User">User</option>
+					<option value="Organisateur">Organisateur</option>
+				</select>
+				<span asp-validation-for="Role" class="text-danger"></span>
+			</div>
+			<div class="mb-3" id="club-name-container" style="display:none;">
+				<label asp-for="NomDuClub" class="form-label"></label>
+				<input asp-for="NomDuClub" class="form-control" />
+				<span asp-validation-for="NomDuClub" class="text-danger"></span>
+			</div>
+			<div class="mb-3">
 				<label asp-for="Name" class="form-label"></label>
 				<input asp-for="Name" class="form-control" />
 				<span asp-validation-for="Name" class="text-danger"></span>
@@ -32,15 +46,6 @@
 				<input asp-for="ConfirmPassword" class="form-control" />
 				<span asp-validation-for="ConfirmPassword" class="text-danger"></span>
 			</div>
-			<div class="mb-3">
-				<label asp-for="Role" class="form-label">Role</label>
-				<select asp-for="Role" class="form-control">
-					<option value="">-- Select Role --</option>
-					<option value="User">User</option>
-					<option value="Organisateur">Organisateur</option>
-				</select>
-				<span asp-validation-for="Role" class="text-danger"></span>
-			</div>
 			<input type="submit" value="Register" class="btn btn-success w-100 p-2">
 			<p class="text-center mt-2">
 				Already have an account? <a asp-controller="Account" asp-action="Login" class="text-decoration-none">Login</a>
@@ -56,4 +61,24 @@
 	@{
 		await Html.RenderPartialAsync("_ValidationScriptsPartial.cshtml");
 	}
+	<script>
+		function toggleClubNameField() {
+			const roleSelect = document.querySelector("select[name='Role']");
+			const clubNameContainer = document.getElementById("club-name-container");
+
+			if (roleSelect.value === "Organisateur") {
+				clubNameContainer.style.display = "block";
+			} else {
+				clubNameContainer.style.display = "none";
+				document.querySelector("input[name='NomDuClub']").value = ""; // Efface le champ si on repasse à User
+			}
+		}
+
+		document.addEventListener("DOMContentLoaded", function () {
+			const roleSelect = document.querySelector("select[name='Role']");
+			roleSelect.addEventListener("change", toggleClubNameField);
+			toggleClubNameField(); // Appelé au chargement si valeur déjà sélectionnée
+		});
+	</script>
+}
 }

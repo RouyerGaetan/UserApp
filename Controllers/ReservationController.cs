@@ -11,9 +11,9 @@ namespace UserApp.Controllers
     public class ReservationController : Controller
     {
         private readonly AppDbContext _context;
-        private readonly UserManager<Users> _userManager;
+        private readonly UserManager<User> _userManager;
 
-        public ReservationController(AppDbContext context, UserManager<Users> userManager)
+        public ReservationController(AppDbContext context, UserManager<User> userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -58,7 +58,7 @@ namespace UserApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                Users? user = await _userManager.GetUserAsync(User);
+                User? user = await _userManager.GetUserAsync(User);
                 Evenement? evenement = await _context.Evenements
                     .FirstOrDefaultAsync(e => e.Id == model.EvenementId);
 

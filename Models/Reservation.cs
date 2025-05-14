@@ -13,7 +13,7 @@ namespace UserApp.Models
 
         // Liens avec d'autres entités
         public string UserId { get; set; }
-        public virtual Users User { get; set; }
+        public virtual User User { get; set; }
 
         public int EvenementId { get; set; }
         public virtual Evenement Evenement { get; set; }

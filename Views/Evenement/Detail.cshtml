@@ -30,7 +30,11 @@
                     <p class="text-muted small mb-0">@Model.Sport</p>
                 </div>
                 <div class="text-muted small mt-2 mt-md-0">
-                    Organisé par <strong>@(Model.User?.FullName ?? "Utilisateur inconnu")</strong>
+                    Organisé par <strong>
+                        @((Model.User != null && !string.IsNullOrEmpty(Model.User.Prenom) && !string.IsNullOrEmpty(Model.User.Nom))
+                            ? $"{Model.User.Prenom} {Model.User.Nom}"
+                            : "Utilisateur inconnu")
+                    </strong>
                 </div>
             </div>
 
@@ -82,7 +86,11 @@
             <!-- Organisateur -->
             <div class="card p-3">
                 <h3 class="h6 fw-semibold mb-2">Organisateur</h3>
-                <p class="small fw-medium">@Model.User?.FullName</p>
+                <p class="small fw-medium">
+                    @((Model.User != null && !string.IsNullOrEmpty(Model.User.Prenom) && !string.IsNullOrEmpty(Model.User.Nom))
+                        ? $"{Model.User.Prenom} {Model.User.Nom}"
+                        : "Utilisateur inconnu")
+                </p>
                 <p class="text-muted small">@(Model.User?.Email ?? "Email non disponible")</p>
                 <a href="mailto:@Model.User?.Email" class="small text-decoration-none text-primary d-inline-block mt-2">
                     Contacter l'organisateur

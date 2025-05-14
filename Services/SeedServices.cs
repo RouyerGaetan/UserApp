@@ -11,7 +11,7 @@ namespace UserApp.Services
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Users>>();   
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();   
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<SeedServices>>();
 
             try
@@ -34,9 +34,8 @@ namespace UserApp.Services
                 var adminEmail = "admin@codehub.com";
                 if (await userManager.FindByEmailAsync(adminEmail) == null)
                 {
-                    var adminUser = new Users
+                    var adminUser = new User
                     {
-                        FullName = "Code Hub",
                         UserName = adminEmail,
                         NormalizedUserName = adminEmail.ToUpper(),
                         Email = adminEmail,
