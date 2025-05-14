@@ -1,0 +1,63 @@
+﻿@model List<UserApp.Models.Evenement>
+
+<h3>📅 Mes Événements</h3>
+
+<a href="@Url.Action("Create", "Evenement")" class="btn btn-primary mt-3 mb-3">
+    Créer un nouvel événement
+</a>
+
+@if (TempData["Message"] != null)
+{
+    var messageType = TempData["MessageType"]?.ToString() ?? "success";  // Défaut "success" si aucun type spécifié
+
+    <div class="alert @(
+        messageType == "success" ? "alert-success" :
+        messageType == "error" ? "alert-danger" :
+        "alert-info") alert-dismissible fade show" role="alert">
+        @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <p>Aucun événement créé pour le moment.</p>
+}
+else
+{
+    <table class="table table-hover align-middle shadow-sm">
+    <thead class="table-light">
+        <tr>
+            <th scope="col">Titre</th>
+            <th scope="col">Date</th>
+            <th scope="col" class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var e in Model)
+        {
+            <tr>
+                <td class="fw-semibold">@e.Titre</td>
+                <td>
+                    <span class="badge bg-secondary">@e.Date.ToString("dd MMM yyyy")</span>
+                </td>
+                <td class="text-end">
+                    <a asp-controller="Evenement" asp-action="Detail" asp-route-id="@e.Id" 
+                       class="btn btn-outline-info btn-sm me-1" title="Voir les détails">
+                        <i class="bi bi-eye"></i> Détails
+                    </a>
+                    <a asp-controller="Evenement" asp-action="Edit" asp-route-id="@e.Id" 
+                       class="btn btn-outline-primary btn-sm me-1" title="Modifier l'événement">
+                        <i class="bi bi-pencil-square"></i> Modifier
+                    </a>
+                    <a asp-controller="Evenement" asp-action="Delete" asp-route-id="@e.Id" 
+                       class="btn btn-outline-danger btn-sm" title="Supprimer l'événement">
+                        <i class="bi bi-trash"></i> Supprimer
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+}

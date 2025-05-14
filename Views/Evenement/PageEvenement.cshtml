@@ -13,18 +13,6 @@
 }
 
 <div class="container mt-4">
-	@if (TempData["Message"] != null)
-	{
-		var messageType = TempData["MessageType"]?.ToString() ?? "success";  // Défaut "success" si aucun type spécifié
-
-		<div class="alert @(
-        messageType == "success" ? "alert-success" :
-        messageType == "error" ? "alert-danger" :
-        "alert-info") alert-dismissible fade show" role="alert">
-			@TempData["Message"]
-			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-		</div>
-	}
 	<form method="get" asp-action="PageEvenement" class="mb-4">
 		<input type="hidden" name="filtreDate" value="@ViewData["filtreDate"]" />
 
@@ -109,29 +97,30 @@
 							@foreach (var evenement in Model)
 							{
 								<div class="col-md-6">
-									<div class="card">
-										<img src="@Url.Content(evenement.ImageUrl)" class="card-img-top event-img img-fluid" alt="@evenement.Titre" />
+									<div class="card position-relative">
+										<!-- Si le nombre de places restantes est 0, afficher "Sold Out" -->
+										@if (evenement.AvailableSeats == 0)
+										{
+											<div class="sold-out-overlay">
+												<span class="sold-out-text">Sold Out</span>
+											</div>
+										}
+
+										@await Html.PartialAsync("_EvenementImage", evenement.ImageUrl)
+
 										<div class="card-body">
 											<h5 class="card-title">@evenement.Titre</h5>
 											<p class="card-text">
 												<i class="bi bi-calendar-event"></i> @evenement.Date.ToString("dd MMM yyyy")<br />
 												<i class="bi bi-geo-alt"></i> @evenement.Ville<br />
 												<span class="badge bg-primary">À partir de @evenement.Prix €</span>
+											</p>
+
 											<p class="small text-muted mt-2">
 												<strong>Places restantes :</strong> @evenement.AvailableSeats
 											</p>
 
-											</p>
 											<a asp-action="Detail" asp-route-id="@evenement.Id" class="btn btn-primary">Voir les détails</a>
-
-											@if (evenement.UserId == currentUserId)
-											{
-												<div class="mt-2">
-													<a asp-action="Edit" asp-route-id="@evenement.Id" class="btn btn-outline-warning btn-sm me-2">Modifier</a>
-													<a asp-action="Delete" asp-route-id="@evenement.Id" class="btn btn-outline-danger btn-sm">Supprimer</a>
-												</div>
-											}
-
 										</div>
 									</div>
 								</div>
@@ -140,10 +129,33 @@
 					}
 					else
 					{
-						<!-- Bloc ajouté : affiché si aucun événement -->
 						<div class="d-flex justify-content-center align-items-center" style="height: 300px;">
 							<h3 class="text-muted">Aucun évènement disponible</h3>
 						</div>
+					}
+					<!-- Pagination -->
+					@if (ViewData["TotalPages"] != null && (int)ViewData["TotalPages"] > 1)
+					{
+						<nav aria-label="Pagination">
+							<ul class="pagination justify-content-center mt-4">
+								@for (int i = 1; i <= (int)ViewData["TotalPages"]; i++)
+								{
+									<li class="page-item @(i == (int)ViewData["CurrentPage"] ? "active" : "")">
+										<a class="page-link"
+										   asp-action="PageEvenement"
+										   asp-route-page="@i"
+										   asp-route-searchTerm="@ViewData["searchTerm"]"
+										   asp-route-sport="@ViewData["sport"]"
+										   asp-route-ville="@ViewData["ville"]"
+										   asp-route-prixMax="@ViewData["prixMax"]"
+										   asp-route-date="@(((DateTime?)ViewData["date"])?.ToString("yyyy-MM-dd"))"
+										   asp-route-filtreDate="@ViewData["filtreDate"]">
+											@i
+										</a>
+									</li>
+								}
+							</ul>
+						</nav>
 					}
 				</div>
 			</div>

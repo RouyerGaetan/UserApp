@@ -1,18 +1,13 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<Users> signInManager
 
-@* Préparation des variables AVANT d'écrire du HTML *@
 @{
     string? firstLetter = null;
-    string dashboardAction = "User";
 
     if (signInManager.IsSignedIn(User))
     {
         var email = User.Identity?.Name;
         firstLetter = email?.Substring(0, 1).ToUpper();
-
-        if (User.IsInRole("Admin")) { dashboardAction = "Admin"; }
-        else if (User.IsInRole("Organisateur")) { dashboardAction = "Organisateur"; }
     }
 }
 
@@ -20,8 +15,8 @@
     @if (signInManager.IsSignedIn(User))
     {
         <li class="nav-item d-flex align-items-center gap-2">
-            <!-- Avatar cliquable -->
-            <a asp-controller="Home" asp-action="@dashboardAction" class="text-decoration-none">
+            <!-- Avatar cliquable vers le nouveau dashboard unique -->
+            <a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none">
                 <div class="avatar-circle me-1">
                     <span class="initial">@firstLetter</span>
                 </div>

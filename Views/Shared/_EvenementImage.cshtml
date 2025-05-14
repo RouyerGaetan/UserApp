@@ -1,0 +1,5 @@
+﻿@model string
+<img src="@(!string.IsNullOrEmpty(Model) ? Url.Content(Model) : Url.Content("/images/default-event.jfif"))"
+     class="card-img-top event-img img-fluid"
+     alt="Image de l'événement"
+     style="height: 300px; object-fit: cover;" />

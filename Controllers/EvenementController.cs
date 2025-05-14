@@ -54,7 +54,6 @@ namespace UserApp.Controllers
             Users? user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
 
-            AssignerImageParDefaut(evenement);
             evenement.AvailableSeats = evenement.TotalSeats;
 
             // Associer l'événement à l'organisateur connecté
@@ -62,7 +61,7 @@ namespace UserApp.Controllers
             _context.Evenements.Add(evenement);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(PageEvenement));
+            return RedirectToAction("Index", "Dashboard", new { section = "evenements" });
         }
 
         // GET: Edition
@@ -78,7 +77,7 @@ namespace UserApp.Controllers
 
             if(evenement.ImageUrl == "/images/default-event.jfif")
             {
-                evenement.ImageUrl = string.Empty;
+                evenement.ImageUrl = null;
             }
             return View(evenement);
         }
@@ -121,14 +120,13 @@ namespace UserApp.Controllers
                 return View(updatedEvent);
             }
 
-            AssignerImageParDefaut(evenement);
             _context.Update(evenement);
             await _context.SaveChangesAsync();
 
             TempData["Message"] = "L'événement a bien été modifié.";
-            TempData["MessageType"] = "sucess";
+            TempData["MessageType"] = "success";
 
-            return RedirectToAction(nameof(PageEvenement));
+            return RedirectToAction("Index", "Dashboard", new { section = "evenements" });
         }
         private int CalculerPlacesDisponibles(int totalSeats, int reservedSeats)
         {
@@ -163,69 +161,62 @@ namespace UserApp.Controllers
             TempData["Message"] = "L'événement a bien été supprimé.";
             TempData["MessageType"] = "error";
 
-            return RedirectToAction(nameof(PageEvenement));
+            return RedirectToAction("Index", "Dashboard", new { section = "evenements" });
         }
 
         // GET : Liste des évènements (accesible à tous)
         [AllowAnonymous]
-        public async Task<IActionResult> PageEvenement(string searchTerm, string sport, string ville, int? prixMax, DateTime? date, string filtreDate)
+        [HttpGet]
+        public async Task<IActionResult> PageEvenement(string searchTerm, string sport, string ville, decimal? prixMax, DateTime? date, string filtreDate, int page = 1, int pageSize = 6)
         {
-            IQueryable<Evenement> evenements = _context.Evenements;
+            var query = _context.Evenements.AsQueryable();
 
+            // Filtres
             if (!string.IsNullOrEmpty(searchTerm))
-            {
-                evenements = evenements.Where(e =>
-                    e.Titre.Contains(searchTerm) ||
-                    e.Description.Contains(searchTerm) ||
-                    e.Ville.Contains(searchTerm));
-            }
+                query = query.Where(e => e.Titre.Contains(searchTerm));
 
             if (!string.IsNullOrEmpty(sport))
-            {
-                evenements = evenements.Where(e => e.Sport == sport);
-            }
+                query = query.Where(e => e.Sport == sport);
 
             if (!string.IsNullOrEmpty(ville))
-            {
-                evenements = evenements.Where(e => e.Ville == ville);
-            }
+                query = query.Where(e => e.Ville == ville);
 
             if (prixMax.HasValue)
-            {
-                evenements = evenements.Where(e => e.Prix <= prixMax.Value);
-            }
+                query = query.Where(e => e.Prix <= prixMax);
 
             if (date.HasValue)
-            {
-                evenements = evenements.Where(e => e.Date.Date == date.Value.Date);
-            }
+                query = query.Where(e => e.Date.Date == date.Value.Date);
 
-            if (!string.IsNullOrEmpty(filtreDate))
-            {
-                DateTime now = DateTime.Now;
+            if (filtreDate == "avenir")
+                query = query.Where(e => e.Date > DateTime.Now);
+            else if (filtreDate == "passe")
+                query = query.Where(e => e.Date < DateTime.Now);
 
-                if (filtreDate == "avenir")
-                {
-                    evenements = evenements.Where(e => e.Date >= now);
-                }
-                else if (filtreDate == "passe")
-                {
-                    evenements = evenements.Where(e => e.Date < now);
-                }
-            }
+            // Pagination
+            int totalItems = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
-            // Pour que la vue garde les valeurs des filtres
+            var evenements = await query
+                .OrderBy(e => e.Date)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Infos pour la vue
             ViewData["searchTerm"] = searchTerm;
             ViewData["sport"] = sport;
             ViewData["ville"] = ville;
             ViewData["prixMax"] = prixMax;
             ViewData["date"] = date;
             ViewData["filtreDate"] = filtreDate;
+            ViewData["TotalPages"] = totalPages;
+            ViewData["CurrentPage"] = page;
 
             ViewBag.Sports = _sportService.GetAllSports();
 
-            return View(await evenements.ToListAsync());
+            return View(evenements);
         }
+
 
         // GET : Détail d'un évènement
         [AllowAnonymous]
@@ -242,13 +233,6 @@ namespace UserApp.Controllers
             }
 
             return View(evenement);
-        }
-        private void AssignerImageParDefaut(Evenement evenement)
-        {
-            if (string.IsNullOrWhiteSpace(evenement.ImageUrl))
-            {
-                evenement.ImageUrl = "/images/default-event.jfif";
-            }
         }
     }
 }

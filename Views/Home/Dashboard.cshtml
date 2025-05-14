@@ -1,0 +1,17 @@
+﻿@{
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    ViewData["Title"] = "Tableau de bord";
+}
+
+<p class="text-muted">Bienvenue sur votre tableau de bord. Sélectionnez une section dans le menu de gauche pour commencer.</p>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const section = "@ViewData["ActiveSection"]";
+            if (section) {
+                loadSection(section);
+            }
+        });
+    </script>
+}

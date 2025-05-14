@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@{
+    Layout = null;
+    var username = User.Identity?.Name ?? "Invité";
+}
+
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="utf-8" />
@@ -11,24 +16,85 @@
     @RenderSection("Styles", required: false)
 </head>
 <body>
-    <!-- En-tête générique -->
+
+    <!-- Navbar principale -->
     <header class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
         <a class="navbar-brand" href="/">Guest Sport</a>
-
-        <div class="ms-auto">
-            <span class="navbar-text text-light me-3">Bonjour, @User.Identity?.Name</span>
+        <div class="ms-auto d-flex align-items-center">
+            <span class="navbar-text text-light me-3">Bonjour, @username</span>
             <a class="btn btn-outline-light" href="/Account/Logout">Déconnexion</a>
         </div>
     </header>
 
-    <!-- Contenu principal injecté par les vues -->
-    <main class="container mt-4">
-        @RenderBody()
-    </main>
+    <!-- Structure globale -->
+    <div class="d-flex" style="min-height: 100vh;">
 
+        <!-- Sidebar -->
+        <nav class="bg-light p-3" style="width: 250px;">
+            <h5 class="mb-4">Navigation</h5>
+            <ul class="nav flex-column">
+
+                <!-- Commun User + Organisateur -->
+                <li class="nav-item mb-2"><a class="nav-link" href="#" onclick="loadSection('profil')">👤 Mon profil</a></li>
+                <li class="nav-item mb-2"><a class="nav-link" href="#" onclick="loadSection('reservations')">🎟️ Mes réservations</a></li>
+                <li class="nav-item mb-2"><a class="nav-link" href="#" onclick="loadSection('historique')">📜 Historique</a></li>
+                <li class="nav-item mb-2"><a class="nav-link" href="#" onclick="loadSection('notifications')">🔔 Notifications</a></li>
+                <li class="nav-item mb-2"><a class="nav-link" href="#" onclick="loadSection('parametres')">⚙️ Paramètres</a></li>
+
+                @if (User.IsInRole("User"))
+                {
+                    <li class="nav-item mb-2"><a class="nav-link" href="#" onclick="loadSection('justificatifs')">📄 Justificatifs PMR/PSH</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="#" onclick="loadSection('paiement')">💳 Moyens de paiement</a></li>
+                }
+
+                @if (User.IsInRole("Organisateur"))
+                {
+                    <li class="nav-item mb-2"><a class="nav-link" href="#" onclick="loadSection('evenements')">📅 Gérer mes événements</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="#" onclick="loadSection('club')">🏟️ Mon club</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="#" onclick="loadSection('statistiques')">📊 Statistiques</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="#" onclick="loadSection('spectateurs')">👥 Spectateurs</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="#" onclick="loadSection('places')">🪑 Gestion des places</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="#" onclick="loadSection('avis')">⭐ Avis & Commentaires</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="#" onclick="loadSection('alertes')">🚨 Alertes</a></li>
+                }
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <li class="nav-item mb-2"><a class="nav-link" href="#" onclick="loadSection('utilisateurs')">🛠️ Gérer utilisateurs</a></li>
+                }
+
+            </ul>
+        </nav>
+
+        <!-- Contenu principal -->
+        <main class="p-4 flex-grow-1" id="dashboard-content">
+            @RenderBody()
+        </main>
+
+    </div>
+
+    <!-- Scripts JS -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        function loadSection(section) {
+            fetch('/Dashboard/LoadSection?section=' + section)
+                .then(response => {
+                    if (!response.ok) throw new Error("Erreur de chargement");
+                    return response.text();
+                })
+                .then(html => {
+                    document.getElementById('dashboard-content').innerHTML = html;
+                })
+                .catch(error => {
+                    document.getElementById('dashboard-content').innerHTML =
+                        "<div class='alert alert-danger'>Erreur de chargement de la section.</div>";
+                });
+        }
+    </script>
+
     @RenderSection("Scripts", required: false)
 </body>
 </html>

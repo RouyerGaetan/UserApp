@@ -1,0 +1,32 @@
+﻿@model List<UserApp.Models.Reservation>
+
+<h3>🎟️ Mes Réservations</h3>
+
+@if (!Model.Any())
+{
+	<p>Aucune réservation pour le moment.</p>
+}
+else
+{
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th>Événement</th>
+				<th>Nombre de places</th>
+				<th>Statut</th>
+				<th>Date</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var r in Model)
+			{
+				<tr>
+					<td>@r.Evenement?.Titre</td>
+					<td>@r.NumberOfSeats</td>
+					<td>@r.Status</td>
+					<td>@r.ReservationDate.ToShortDateString()</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}

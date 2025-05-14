@@ -18,4 +18,9 @@
     <PackageReference Include="QRCoder" Version="1.6.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Views\Home\Partials\Admin\" />
+    <Folder Include="Views\Home\Partials\User\" />
+  </ItemGroup>
+
 </Project>
