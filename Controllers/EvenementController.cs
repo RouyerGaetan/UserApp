@@ -60,7 +60,12 @@ namespace UserApp.Controllers
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors ?? new Dictionary<string, string>())
-                    ModelState.AddModelError(error.Key, error.Value);
+                {
+                    if (string.IsNullOrWhiteSpace(error.Key))
+                        ModelState.AddModelError(string.Empty, error.Value);
+                    else
+                        ModelState.AddModelError(error.Key, error.Value);
+                }
 
                 ChargerSports();
                 return View("~/Views/DashboardEvenement/Create.cshtml", evenement);
