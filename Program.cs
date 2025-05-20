@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UserApp.Data;
 using UserApp.Models;
+using UserApp.Repositories;
+using UserApp.Repositories.Interfaces;
+using UserApp.Services;
 using UserApp.Services.Implementations;
 using UserApp.Services.Interfaces;
 using UserApp.Services.Seed;
@@ -32,6 +35,8 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 
 builder.Services.AddScoped<ISportService, SportService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IEvenementRepository, EvenementRepository>();
+builder.Services.AddScoped<IEvenementService, EvenementService>();
 
 var app = builder.Build();
 

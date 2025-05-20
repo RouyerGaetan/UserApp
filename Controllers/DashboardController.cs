@@ -38,13 +38,13 @@ public class DashboardController : Controller
             case "profil":
                 return PartialView("~/Views/Home/Partials/Shared/_Profil.cshtml");
             case "reservations":
-                var userId = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name)?.Id;
+                var currentUserId = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name)?.Id;
 
-                if (userId == null)
+                if (currentUserId == null)
                     return BadRequest("Utilisateur introuvable.");
 
                 var reservations = _context.Reservations
-                                           .Where(r => r.UserId == userId)
+                                           .Where(r => r.UserId == currentUserId)
                                            .Include(r => r.Evenement)
                                            .ToList();
 
@@ -76,11 +76,11 @@ public class DashboardController : Controller
             {
                 case "evenements":
                     // Récupérer l'ID de l'utilisateur (organisateur) connecté
-                    var userId = _userManager.GetUserId(User);
+                    var organisateurId = _userManager.GetUserId(User);
 
                     // Charger les événements associés à cet organisateur
                     var evenements = _context.Evenements
-                                             .Where(e => e.UserId == userId)  // Filtrer par UserId
+                                             .Where(e => e.UserId == organisateurId)  // Filtrer par UserId
                                              .ToList();
 
                     return PartialView("~/Views/Home/Partials/Organisateur/_GererEvenements.cshtml", evenements);
