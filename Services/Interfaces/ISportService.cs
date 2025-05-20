@@ -1,4 +1,4 @@
-﻿namespace UserApp.Services
+﻿namespace UserApp.Services.Interfaces
 {
     public interface ISportService
     {

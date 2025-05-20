@@ -19,6 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Repositories\Implementations\" />
+    <Folder Include="Repositories\Interfaces\" />
     <Folder Include="Views\Home\Partials\Admin\" />
     <Folder Include="Views\Home\Partials\User\" />
   </ItemGroup>

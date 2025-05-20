@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UserApp.Data;
 using UserApp.Models;
-using UserApp.Services;
+using UserApp.Services.Interfaces;
 
 namespace UserApp.Controllers
 {

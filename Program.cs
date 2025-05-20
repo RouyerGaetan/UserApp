@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UserApp.Data;
 using UserApp.Models;
-using UserApp.Services;
+using UserApp.Services.Implementations;
+using UserApp.Services.Interfaces;
+using UserApp.Services.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +45,9 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
+
 app.UseRouting();
 
 app.UseAuthentication();

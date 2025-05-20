@@ -2,7 +2,7 @@
 using UserApp.Data;
 using UserApp.Models;
 
-namespace UserApp.Services
+namespace UserApp.Services.Seed
 {
     public class SeedServices
     {
@@ -11,7 +11,7 @@ namespace UserApp.Services
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();   
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<SeedServices>>();
 
             try
