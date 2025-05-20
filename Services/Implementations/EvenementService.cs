@@ -1,4 +1,7 @@
-﻿using UserApp.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using UserApp.Models;
 using UserApp.Repositories.Interfaces;
 using UserApp.Services.Interfaces;
 
@@ -6,75 +9,95 @@ namespace UserApp.Services
 {
     public class EvenementService : IEvenementService
     {
-        private readonly IEvenementRepository _repository;
+        private readonly IEvenementRepository _evenementRepository;
 
-        public EvenementService(IEvenementRepository repository)
+        public EvenementService(IEvenementRepository evenementRepository)
         {
-            _repository = repository;
+            _evenementRepository = evenementRepository;
         }
 
         public async Task<Evenement?> GetEvenementByIdAsync(int id)
         {
-            return await _repository.GetByIdAsync(id);
+            return await _evenementRepository.GetByIdAsync(id);
         }
 
-        public async Task<(List<Evenement>, int totalPages)> GetEvenementsFilteredAsync(
-            string searchTerm,
-            string sport,
-            string ville,
-            decimal? prixMax,
-            DateTime? date,
-            string filtreDate,
-            int page,
-            int pageSize)
+        public async Task<IEnumerable<Evenement>> GetAllAsync()
         {
-            return await _repository.GetFilteredAsync(
-                searchTerm,
-                sport,
-                ville,
-                prixMax,
-                date,
-                filtreDate,
-                page,
-                pageSize);
+            return await _evenementRepository.GetAllAsync();
         }
 
-        public async Task<bool> EstOrganisateurDeLEvenementAsync(
-            int evenementId,
-            string userId)
+        public async Task<PagedResult<Evenement>> GetEvenementsWithFilterAsync(string? searchTerm, string? sport, string? ville, decimal? prixMax, DateTime? date, string? filtreDate, int page, int pageSize)
         {
-            return await _repository.EstOrganisateurAsync(evenementId, userId);
-        }
+            var items = await _evenementRepository.GetFilteredAsync(searchTerm, sport, ville, prixMax, date, filtreDate, page, pageSize);
+            var totalCount = await _evenementRepository.GetCountFilteredAsync(searchTerm, sport, ville, prixMax, date, filtreDate);
 
-        public async Task CreateEvenementAsync(Evenement evenement)
-        {
-            await _repository.AddAsync(evenement);
-        }
-
-        public async Task UpdateEvenementAsync(
-            Evenement evenement,
-            Evenement updatedEvent)
-        {
-            evenement.Titre = updatedEvent.Titre;
-            evenement.Description = updatedEvent.Description;
-            evenement.Sport = updatedEvent.Sport;
-            evenement.Ville = updatedEvent.Ville;
-            evenement.Date = updatedEvent.Date;
-            evenement.Prix = updatedEvent.Prix;
-            evenement.TotalSeats = updatedEvent.TotalSeats;
-            evenement.AvailableSeats = updatedEvent.AvailableSeats;
-            evenement.ImageUrl = updatedEvent.ImageUrl;
-
-            await _repository.UpdateAsync(evenement);
-        }
-
-        public async Task DeleteEvenementAsync(int id)
-        {
-            var evenement = await _repository.GetByIdAsync(id);
-            if (evenement != null)
+            return new PagedResult<Evenement>
             {
-                await _repository.DeleteAsync(evenement);
+                Items = items,
+                TotalCount = totalCount
+            };
+        }
+
+        // --- Mise à jour ici : retour OperationResult et gestion des erreurs ---
+        public async Task<OperationResult> AddEvenementAsync(Evenement evenement)
+        {
+            if (evenement == null)
+                return OperationResult.Fail("Evenement", "L'événement ne peut pas être nul.");
+
+            evenement.AvailableSeats = evenement.TotalSeats;
+
+            await _evenementRepository.AddAsync(evenement);
+            return OperationResult.Success();
+        }
+
+        public async Task<OperationResult> UpdateEvenementAsync(Evenement updatedEvent)
+        {
+            if (updatedEvent == null)
+                return OperationResult.Fail("Evenement", "L'événement ne peut pas être nul.");
+
+            var existingEvent = await _evenementRepository.GetByIdAsync(updatedEvent.Id);
+            if (existingEvent == null)
+                return OperationResult.Fail("Evenement", "L'événement n'existe pas.");
+
+            int reservedSeats = existingEvent.TotalSeats - existingEvent.AvailableSeats;
+            int availableSeats = updatedEvent.TotalSeats - reservedSeats;
+
+            if (availableSeats < 0)
+            {
+                return OperationResult.Fail("TotalSeats", "Le nombre total de places ne peut pas être inférieur au nombre de places déjà réservées.");
             }
+
+            existingEvent.Titre = updatedEvent.Titre;
+            existingEvent.Description = updatedEvent.Description;
+            existingEvent.Ville = updatedEvent.Ville;
+            existingEvent.Date = updatedEvent.Date;
+            existingEvent.Sport = updatedEvent.Sport;
+            existingEvent.Prix = updatedEvent.Prix;
+            existingEvent.ImageUrl = updatedEvent.ImageUrl;
+            existingEvent.TotalSeats = updatedEvent.TotalSeats;
+            existingEvent.AvailableSeats = availableSeats;
+
+            await _evenementRepository.UpdateAsync(existingEvent);
+            return OperationResult.Success();
+        }
+
+        public async Task<OperationResult> DeleteEvenementAsync(int id, string userId)
+        {
+            var evenement = await _evenementRepository.GetByIdAsync(id);
+            if (evenement == null)
+                return OperationResult.Fail("Evenement", "L'événement n'existe pas.");
+
+            var isOwner = await IsUserOwnerOfEventAsync(id, userId);
+            if (!isOwner)
+                return OperationResult.Fail("Authorization", "Vous n'êtes pas autorisé à supprimer cet événement.");
+
+            await _evenementRepository.DeleteAsync(evenement);
+            return OperationResult.Success();
+        }
+
+        public async Task<bool> IsUserOwnerOfEventAsync(int evenementId, string userId)
+        {
+            return await _evenementRepository.IsOwnerAsync(evenementId, userId);
         }
     }
 }

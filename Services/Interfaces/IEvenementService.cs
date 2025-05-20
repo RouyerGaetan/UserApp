@@ -1,31 +1,31 @@
-﻿using UserApp.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using UserApp.Models;
 
 namespace UserApp.Services.Interfaces
 {
     public interface IEvenementService
     {
         Task<Evenement?> GetEvenementByIdAsync(int id);
+        Task<IEnumerable<Evenement>> GetAllAsync();
 
-        Task<(List<Evenement>, int totalPages)> GetEvenementsFilteredAsync(
-            string searchTerm,
-            string sport,
-            string ville,
+        Task<PagedResult<Evenement>> GetEvenementsWithFilterAsync(
+            string? searchTerm,
+            string? sport,
+            string? ville,
             decimal? prixMax,
             DateTime? date,
-            string filtreDate,
+            string? filtreDate,
             int page,
             int pageSize);
 
-        Task<bool> EstOrganisateurDeLEvenementAsync(
-            int evenementId,
-            string userId);
+        Task<OperationResult> AddEvenementAsync(Evenement evenement);   // <-- retour OperationResult
 
-        Task CreateEvenementAsync(Evenement evenement);
+        Task<OperationResult> UpdateEvenementAsync(Evenement updatedEvent);  // <-- retour OperationResult
 
-        Task UpdateEvenementAsync(
-            Evenement evenement,
-            Evenement updatedEvent);
+        Task<OperationResult> DeleteEvenementAsync(int id, string userId);  // <-- retour OperationResult
 
-        Task DeleteEvenementAsync(int id);
+        Task<bool> IsUserOwnerOfEventAsync(int evenementId, string userId);
     }
 }

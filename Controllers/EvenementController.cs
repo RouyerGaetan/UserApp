@@ -1,66 +1,42 @@
-﻿using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 using UserApp.Models;
 using UserApp.Services.Interfaces;
 
 namespace UserApp.Controllers
 {
+    [Authorize(Roles = "Organisateur")]
     public class EvenementController : Controller
     {
         private readonly IEvenementService _evenementService;
+        private readonly IUserService _userService;
+        private readonly ILogger<EvenementController> _logger;
         private readonly ISportService _sportService;
 
-        public EvenementController(IEvenementService evenementService, ISportService sportService)
+        public EvenementController(
+            IEvenementService evenementService,
+            IUserService userService,
+            ILogger<EvenementController> logger,
+            ISportService sportService)
         {
             _evenementService = evenementService;
+            _userService = userService;
+            _logger = logger;
             _sportService = sportService;
         }
 
-        // GET: Evenement/Index
-        public async Task<IActionResult> PageEvenement(
-            string searchTerm,
-            string sport,
-            string ville,
-            decimal? prixMax,
-            DateTime? date,
-            string filtreDate,
-            int page = 1)
+        private void ChargerSports()
         {
-            const int pageSize = 10;
-
-            var (evenements, totalPages) = await _evenementService.GetEvenementsFilteredAsync(
-                searchTerm,
-                sport,
-                ville,
-                prixMax,
-                date,
-                filtreDate,
-                page,
-                pageSize);
-
-            ViewData["TotalPages"] = totalPages;
-            ViewData["CurrentPage"] = page;
-
             ViewBag.Sports = _sportService.GetAllSports();
-
-            return View("PageEvenement", evenements);
         }
 
-        // GET: Evenement/Details/5
-        public async Task<IActionResult> Detail(int id)
-        {
-            var evenement = await _evenementService.GetEvenementByIdAsync(id);
-
-            if (evenement == null)
-                return NotFound();
-
-            return View("Detail", evenement);
-        }
-
-        // GET: Evenement/Create
+        [HttpGet]
         public IActionResult Create()
         {
-            ViewBag.Sports = _sportService.GetAllSports();
+            ChargerSports();
             return View("~/Views/DashboardEvenement/Create.cshtml");
         }
 
@@ -70,73 +46,150 @@ namespace UserApp.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Sports = _sportService.GetAllSports();
+                ChargerSports();
                 return View("~/Views/DashboardEvenement/Create.cshtml", evenement);
             }
 
-            // Récupérer l'ID de l'utilisateur connecté (AspNetUsers Id)
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
+            var user = await _userService.GetCurrentUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            evenement.UserId = user.Id;
+            evenement.AvailableSeats = evenement.TotalSeats;
+
+            var result = await _evenementService.AddEvenementAsync(evenement); // <-- changement ici
+            if (!result.Succeeded)
             {
-                // Cas où l'utilisateur n'est pas connecté : tu peux rediriger vers la connexion
-                return RedirectToAction("Login", "Account");
+                foreach (var error in result.Errors ?? new Dictionary<string, string>())
+                    ModelState.AddModelError(error.Key, error.Value);
+
+                ChargerSports();
+                return View("~/Views/DashboardEvenement/Create.cshtml", evenement);
             }
 
-            evenement.UserId = userId;  // Assigner l'ID utilisateur à l'événement
-
-            await _evenementService.CreateEvenementAsync(evenement);
-
-            return RedirectToAction(nameof(PageEvenement));
+            return RedirectToAction("Index", "Dashboard", new { section = "evenements" });
         }
 
-        // GET: Evenement/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var evenement = await _evenementService.GetEvenementByIdAsync(id);
-            if (evenement == null) return NotFound();
-
-            ViewBag.Sports = _sportService.GetAllSports();
-            return View("~/Views/DashboardEvenement/Edit.cshtml", evenement);
-        }
-
-        // POST: Evenement/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Evenement updatedEvent)
-        {
-            if (id != updatedEvent.Id)
-                return BadRequest();
-
-            if (!ModelState.IsValid)
-            {
-                ViewBag.Sports = _sportService.GetAllSports(); // Recharger la liste
-                return View("~/Views/DashboardEvenement/Edit.cshtml", updatedEvent);
-            }
+            var user = await _userService.GetCurrentUserAsync(User);
+            if (user == null) return Unauthorized();
 
             var evenement = await _evenementService.GetEvenementByIdAsync(id);
             if (evenement == null)
                 return NotFound();
 
-            await _evenementService.UpdateEvenementAsync(evenement, updatedEvent);
-            return RedirectToAction(nameof(PageEvenement));
+            // Vérifie si l'utilisateur est propriétaire (si besoin)
+            if (evenement.UserId != user.Id)
+                return Unauthorized();
+
+            ChargerSports();
+
+            return View("~/Views/DashboardEvenement/Edit.cshtml", evenement);
         }
 
-        // GET: Evenement/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Evenement updatedEvent)
+        {
+            if (!ModelState.IsValid)
+            {
+                ChargerSports();
+                return View("~/Views/DashboardEvenement/Edit.cshtml", updatedEvent);
+            }
+
+            var user = await _userService.GetCurrentUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var result = await _evenementService.UpdateEvenementAsync(updatedEvent); // <-- modification ici
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors ?? new Dictionary<string, string>())
+                    ModelState.AddModelError(error.Key, error.Value);
+
+                ChargerSports();
+                return View("~/Views/DashboardEvenement/Edit.cshtml", updatedEvent);
+            }
+
+            TempData["Message"] = "L'événement a bien été modifié.";
+            TempData["MessageType"] = "success";
+
+            return RedirectToAction("Index", "Dashboard", new { section = "evenements" });
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
+            var user = await _userService.GetCurrentUserAsync(User);
+            if (user == null) return Unauthorized();
+
             var evenement = await _evenementService.GetEvenementByIdAsync(id);
             if (evenement == null) return NotFound();
+
+            // Vérifie si l’utilisateur est propriétaire (optionnel)
+            if (evenement.UserId != user.Id)
+                return Unauthorized();
 
             return View("~/Views/DashboardEvenement/Delete.cshtml", evenement);
         }
 
-        // POST: Evenement/Delete/5
         [HttpPost, ActionName("DeleteConfirmed")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _evenementService.DeleteEvenementAsync(id);
-            return RedirectToAction(nameof(PageEvenement));
+            var user = await _userService.GetCurrentUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var result = await _evenementService.DeleteEvenementAsync(id, user.Id); // <-- modif ici
+            if (!result.Succeeded)
+            {
+                // Tu peux aussi afficher un message d’erreur ou loguer
+                return Unauthorized();
+            }
+
+            TempData["Message"] = "L'événement a bien été supprimé.";
+            TempData["MessageType"] = "success";
+
+            return RedirectToAction("Index", "Dashboard", new { section = "evenements" });
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> PageEvenement(string searchTerm, string sport, string ville, decimal? prixMax, DateTime? date, string filtreDate, int page = 1, int pageSize = 6)
+        {
+            var pagedResult = await _evenementService.GetEvenementsWithFilterAsync(searchTerm, sport, ville, prixMax, date, filtreDate, page, pageSize);
+
+            // Calcul de TotalPages dans le contrôleur
+            int totalPages = (int)Math.Ceiling((double)pagedResult.TotalCount / pageSize);
+
+            ViewData["searchTerm"] = searchTerm;
+            ViewData["sport"] = sport;
+            ViewData["ville"] = ville;
+            ViewData["prixMax"] = prixMax;
+            ViewData["date"] = date;
+            ViewData["filtreDate"] = filtreDate;
+            ViewData["TotalPages"] = totalPages;    // <-- ici TotalPages calculé
+            ViewData["CurrentPage"] = page;
+
+            ChargerSports();
+
+            return View("~/Views/Evenement/PageEvenement.cshtml", pagedResult.Items);
+        }
+
+
+        [AllowAnonymous]
+        public async Task<IActionResult> Detail(int id)
+        {
+            var evenement = await _evenementService.GetEvenementByIdAsync(id);
+
+            if (evenement == null)
+            {
+                _logger.LogWarning("Détail de l’événement introuvable pour l’ID {Id}", id);
+                return NotFound();
+            }
+
+            return View("~/Views/Evenement/Detail.cshtml", evenement);
         }
     }
 }

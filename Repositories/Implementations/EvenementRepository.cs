@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using UserApp.Data;
 using UserApp.Models;
 using UserApp.Repositories.Interfaces;
@@ -16,92 +20,100 @@ namespace UserApp.Repositories
 
         public async Task<Evenement?> GetByIdAsync(int id)
         {
-            return await _context.Evenements.FindAsync(id);
+            return await _context.Evenements
+                .AsNoTracking()
+                .Include(e => e.User)
+                .FirstOrDefaultAsync(e => e.Id == id);
         }
 
-        public async Task<List<Evenement>> GetAllAsync()
+        public async Task<IEnumerable<Evenement>> GetAllAsync()
         {
-            return await _context.Evenements.ToListAsync();
+            return await _context.Evenements
+                .AsNoTracking()
+                .OrderBy(e => e.Date)
+                .ToListAsync();
         }
 
-        public async Task<(List<Evenement>, int totalPages)> GetFilteredAsync(
-            string searchTerm,
-            string sport,
-            string ville,
-            decimal? prixMax,
-            DateTime? date,
-            string filtreDate,
-            int page,
-            int pageSize)
+        public async Task<IEnumerable<Evenement>> GetFilteredAsync(string? searchTerm, string? sport, string? ville, decimal? prixMax, DateTime? date, string? filtreDate, int page, int pageSize)
         {
-            var query = _context.Evenements.AsQueryable();
+            var query = _context.Evenements.AsNoTracking().AsQueryable();
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                query = query.Where(e =>
-                    (e.Titre != null && e.Titre.Contains(searchTerm)) ||
-                    (e.Description != null && e.Description.Contains(searchTerm)) ||
-                    (e.Ville != null && e.Ville.Contains(searchTerm)) ||
-                    (e.Sport != null && e.Sport.Contains(searchTerm))
-                );
+                var loweredSearch = searchTerm.ToLower();
+                query = query.Where(e => e.Titre.ToLower().Contains(loweredSearch));
             }
 
             if (!string.IsNullOrEmpty(sport))
             {
-                query = query.Where(e => e.Sport != null && e.Sport.Contains(sport));
+                var loweredSport = sport.ToLower();
+                query = query.Where(e => e.Sport.ToLower() == loweredSport);
             }
 
             if (!string.IsNullOrEmpty(ville))
             {
-                query = query.Where(e => e.Ville != null && e.Ville.Contains(ville));
+                var loweredVille = ville.ToLower();
+                query = query.Where(e => e.Ville.ToLower() == loweredVille);
             }
 
             if (prixMax.HasValue)
-            {
-                query = query.Where(e => e.Prix <= prixMax.Value);
-            }
+                query = query.Where(e => e.Prix <= prixMax);
 
             if (date.HasValue)
-            {
-                switch (filtreDate?.ToLower())
-                {
-                    case "avant":
-                        query = query.Where(e => e.Date < date.Value);
-                        break;
-                    case "apres":
-                        query = query.Where(e => e.Date > date.Value);
-                        break;
-                    case "egale":
-                        query = query.Where(e => e.Date.Date == date.Value.Date);
-                        break;
-                    default:
-                        break;
-                }
-            }
+                query = query.Where(e => e.Date.Date == date.Value.Date);
 
-            if (filtreDate == "à venir")
-            {
-                query = query.Where(e => e.Date >= DateTime.Today);
-            }
-            else if (filtreDate == "passés")
-            {
-                query = query.Where(e => e.Date < DateTime.Today);
-            }
+            if (filtreDate == "avenir")
+                query = query.Where(e => e.Date > DateTime.Now);
+            else if (filtreDate == "passe")
+                query = query.Where(e => e.Date < DateTime.Now);
 
-            var totalItems = await query.CountAsync();
-            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
-
-            var result = await query
+            return await query
+                .OrderBy(e => e.Date)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-
-            return (result, totalPages);
         }
+
+        public async Task<int> GetCountFilteredAsync(string? searchTerm, string? sport, string? ville, decimal? prixMax, DateTime? date, string? filtreDate)
+        {
+            var query = _context.Evenements.AsNoTracking().AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                var loweredSearch = searchTerm.ToLower();
+                query = query.Where(e => e.Titre.ToLower().Contains(loweredSearch));
+            }
+
+            if (!string.IsNullOrEmpty(sport))
+            {
+                var loweredSport = sport.ToLower();
+                query = query.Where(e => e.Sport.ToLower() == loweredSport);
+            }
+
+            if (!string.IsNullOrEmpty(ville))
+            {
+                var loweredVille = ville.ToLower();
+                query = query.Where(e => e.Ville.ToLower() == loweredVille);
+            }
+
+            if (prixMax.HasValue)
+                query = query.Where(e => e.Prix <= prixMax);
+
+            if (date.HasValue)
+                query = query.Where(e => e.Date.Date == date.Value.Date);
+
+            if (filtreDate == "avenir")
+                query = query.Where(e => e.Date > DateTime.Now);
+            else if (filtreDate == "passe")
+                query = query.Where(e => e.Date < DateTime.Now);
+
+            return await query.CountAsync();
+        }
+
 
         public async Task AddAsync(Evenement evenement)
         {
-            _context.Evenements.Add(evenement);
+            await _context.Evenements.AddAsync(evenement);
             await _context.SaveChangesAsync();
         }
 
@@ -117,10 +129,11 @@ namespace UserApp.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> EstOrganisateurAsync(int evenementId, string userId)
+        public async Task<bool> IsOwnerAsync(int evenementId, string userId)
         {
-            var evenement = await _context.Evenements.FindAsync(evenementId);
-            return evenement != null && evenement.UserId == userId;
+            return await _context.Evenements
+                .AsNoTracking()
+                .AnyAsync(e => e.Id == evenementId && e.UserId == userId);
         }
     }
 }
