@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using UserApp.Data;
 using UserApp.Models;
+using UserApp.ViewModels;  // Import du ViewModel
 
 [Authorize]
 public class DashboardController : Controller
@@ -25,21 +27,33 @@ public class DashboardController : Controller
     }
 
     // Chargement dynamique des sections
-    public IActionResult LoadSection(string section)
+    public async Task<IActionResult> LoadSection(string section)
     {
         if (string.IsNullOrWhiteSpace(section))
-        {
             return BadRequest("Section invalide.");
-        }
 
         // Sections accessibles à tous les rôles (user, organisateur, admin)
         switch (section.ToLower())
         {
             case "profil":
-                return PartialView("~/Views/Home/Partials/Shared/_Profil.cshtml");
+                {
+                    var user = await _userManager.GetUserAsync(User);
+                    if (user == null) return Unauthorized();
+
+                    var model = new EditProfileViewModel
+                    {
+                        Nom = user.Nom,
+                        Prenom = user.Prenom,
+                        Birthdate = user.Birthdate,
+                        AvatarURL = user.AvatarURL,
+                        NomDuClub = user.NomDuClub,
+                        PhoneNumber = user.PhoneNumber
+                    };
+
+                    return PartialView("~/Views/Home/Partials/Shared/_EditProfile.cshtml", model);
+                }
             case "reservations":
                 var currentUserId = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name)?.Id;
-
                 if (currentUserId == null)
                     return BadRequest("Utilisateur introuvable.");
 
@@ -49,10 +63,13 @@ public class DashboardController : Controller
                                            .ToList();
 
                 return PartialView("~/Views/Home/Partials/Shared/_MesReservations.cshtml", reservations);
+
             case "historique":
                 return PartialView("~/Views/Home/Partials/Shared/_Historique.cshtml");
+
             case "notifications":
                 return PartialView("~/Views/Home/Partials/Shared/_Notifications.cshtml");
+
             case "parametres":
                 return PartialView("~/Views/Home/Partials/Shared/_Parametres.cshtml");
         }
@@ -75,12 +92,9 @@ public class DashboardController : Controller
             switch (section.ToLower())
             {
                 case "evenements":
-                    // Récupérer l'ID de l'utilisateur (organisateur) connecté
                     var organisateurId = _userManager.GetUserId(User);
-
-                    // Charger les événements associés à cet organisateur
                     var evenements = _context.Evenements
-                                             .Where(e => e.UserId == organisateurId)  // Filtrer par UserId
+                                             .Where(e => e.UserId == organisateurId)
                                              .ToList();
 
                     return PartialView("~/Views/Home/Partials/Organisateur/_GererEvenements.cshtml", evenements);
@@ -106,7 +120,41 @@ public class DashboardController : Controller
             return PartialView("~/Views/Home/Partials/Admin/_GestionUtilisateurs.cshtml");
         }
 
-        // Si aucune section valide
         return Content("Section non autorisée ou introuvable.", "text/plain");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveProfile(EditProfileViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return PartialView("~/Views/Home/Partials/Shared/_EditProfile.cshtml", model);
+        }
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Unauthorized();
+
+        user.Nom = model.Nom;
+        user.Prenom = model.Prenom;
+        user.Birthdate = model.Birthdate;
+        user.AvatarURL = model.AvatarURL;
+        user.NomDuClub = model.NomDuClub;
+        user.PhoneNumber = model.PhoneNumber;
+
+        var result = await _userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(string.Empty, error.Description);
+
+            return PartialView("~/Views/Home/Partials/Shared/_EditProfile.cshtml", model);
+        }
+
+        TempData["Message"] = "Profil mis à jour avec succès.";
+        TempData["MessageType"] = "success";
+
+        return RedirectToAction("Index", new { section = "profil" });
     }
 }
