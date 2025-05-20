@@ -27,6 +27,6 @@
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Id" />
         <button type="submit" class="btn btn-danger">Supprimer</button>
-        <a asp-action="PageEvenement" class="btn btn-secondary ms-2">Annuler</a>
+        @await Html.PartialAsync("_BtnAnnulerDashboard")
     </form>
 </div>

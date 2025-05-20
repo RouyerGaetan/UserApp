@@ -1,78 +1,78 @@
 ﻿@model UserApp.Models.Evenement
 
 @{
-    ViewData["Title"] = "Modifier l'événement";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "Modifier l'événement";
+	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container mt-4">
-    <h2>Modifier l'événement</h2>
+	<h2>Modifier l'événement</h2>
 
-    <form asp-action="Edit" method="post">
-        @Html.AntiForgeryToken()
+	<form asp-action="Edit" method="post">
+		@Html.AntiForgeryToken()
 
-        <input type="hidden" asp-for="Id" />
+		<input type="hidden" asp-for="Id" />
 
-        <div class="mb-3">
-            <label asp-for="Titre" class="form-label"></label>
-            <input asp-for="Titre" class="form-control" />
-            <span asp-validation-for="Titre" class="text-danger"></span>
-        </div>
+		<div class="mb-3">
+			<label asp-for="Titre" class="form-label"></label>
+			<input asp-for="Titre" class="form-control" />
+			<span asp-validation-for="Titre" class="text-danger"></span>
+		</div>
 
-        <div class="mb-3">
-            <label asp-for="Description" class="form-label"></label>
-            <textarea asp-for="Description" class="form-control"></textarea>
-            <span asp-validation-for="Description" class="text-danger"></span>
-        </div>
+		<div class="mb-3">
+			<label asp-for="Description" class="form-label"></label>
+			<textarea asp-for="Description" class="form-control"></textarea>
+			<span asp-validation-for="Description" class="text-danger"></span>
+		</div>
 
-        <div class="mb-3">
-            <label asp-for="Ville" class="form-label"></label>
-            <input asp-for="Ville" class="form-control" />
-            <span asp-validation-for="Ville" class="text-danger"></span>
-        </div>
+		<div class="mb-3">
+			<label asp-for="Ville" class="form-label"></label>
+			<input asp-for="Ville" class="form-control" />
+			<span asp-validation-for="Ville" class="text-danger"></span>
+		</div>
 
-        <div class="mb-3">
-            <label asp-for="Date" class="form-label"></label>
-            <input asp-for="Date" class="form-control" type="datetime-local" />
-            <span asp-validation-for="Date" class="text-danger"></span>
-        </div>
+		<div class="mb-3">
+			<label asp-for="Date" class="form-label"></label>
+			<input asp-for="Date" class="form-control" type="datetime-local" />
+			<span asp-validation-for="Date" class="text-danger"></span>
+		</div>
 
-        <div class="mb-3">
-            <label asp-for="Sport" class="form-label"></label>
-            <select asp-for="Sport" class="form-control" asp-items="@(new SelectList(ViewBag.Sports as List<string>, Model.Sport))">
-                <option value="">-- Sélectionnez un sport --</option>
-            </select>
-            <span asp-validation-for="Sport" class="text-danger"></span>
-        </div>
+		<div class="mb-3">
+			<label asp-for="Sport" class="form-label"></label>
+			<select asp-for="Sport" class="form-control" asp-items="@(new SelectList(ViewBag.Sports as List<string>, Model.Sport))">
+				<option value="">-- Sélectionnez un sport --</option>
+			</select>
+			<span asp-validation-for="Sport" class="text-danger"></span>
+		</div>
 
-        <div class="mb-3">
-            <label asp-for="Prix" class="form-label"></label>
-            <input asp-for="Prix" class="form-control" type="number" step="0.01" />
-            <span asp-validation-for="Prix" class="text-danger"></span>
-        </div>
+		<div class="mb-3">
+			<label asp-for="Prix" class="form-label"></label>
+			<input asp-for="Prix" class="form-control" type="number" step="0.01" />
+			<span asp-validation-for="Prix" class="text-danger"></span>
+		</div>
 
-        <div class="mb-3">
-            <label asp-for="TotalSeats" class="form-label"></label>
-            <input asp-for="TotalSeats" class="form-control" />
-            <span asp-validation-for="TotalSeats" class="text-danger"></span>
-        </div>
+		<div class="mb-3">
+			<label asp-for="TotalSeats" class="form-label"></label>
+			<input asp-for="TotalSeats" class="form-control" />
+			<span asp-validation-for="TotalSeats" class="text-danger"></span>
+		</div>
 
-        <div class="mb-3">
-            <label asp-for="AvailableSeats" class="form-label"></label>
-            <input asp-for="AvailableSeats" class="form-control" readonly />
-        </div>
+		<div class="mb-3">
+			<label asp-for="AvailableSeats" class="form-label"></label>
+			<input asp-for="AvailableSeats" class="form-control" readonly />
+		</div>
 
-        <div class="mb-3">
-            <label asp-for="ImageUrl" class="form-label"></label>
-            <input asp-for="ImageUrl" class="form-control" type="url" />
-            <span asp-validation-for="ImageUrl" class="text-danger"></span>
-        </div>
+		<div class="mb-3">
+			<label asp-for="ImageUrl" class="form-label"></label>
+			<input asp-for="ImageUrl" class="form-control" type="url" />
+			<span asp-validation-for="ImageUrl" class="text-danger"></span>
+		</div>
 
-        <button type="submit" class="btn btn-success">Enregistrer</button>
-        <a asp-action="PageEvenement" class="btn btn-secondary ms-2">Annuler</a>
-    </form>
+		<button type="submit" class="btn btn-success">Enregistrer</button>
+		@await Html.PartialAsync("_BtnAnnulerDashboard")
+	</form>
 </div>
 
 @section Scripts {
-    @await Html.PartialAsync("_ValidationScriptsPartial")
+	@await Html.PartialAsync("_ValidationScriptsPartial")
 }
