@@ -2,9 +2,10 @@
 
 <h3>📅 Mes Événements</h3>
 
-<a href="@Url.Action("Create", "Evenement")" class="btn btn-primary mt-3 mb-3">
+<a href="@Url.Action("Create", "OrganisateurEvenement")" class="btn btn-primary mt-3 mb-3">
     Créer un nouvel événement
 </a>
+
 
 @if (TempData["Message"] != null)
 {
@@ -42,16 +43,16 @@ else
                     <span class="badge bg-secondary">@e.Date.ToString("dd MMM yyyy")</span>
                 </td>
                 <td class="text-end">
-                    <a asp-controller="Evenement" asp-action="Detail" asp-route-id="@e.Id" 
-                       class="btn btn-outline-info btn-sm me-1" title="Voir les détails">
+                        <a asp-controller="OrganisateurEvenement" asp-action="Detail" asp-route-id="@e.Id"
+                           class="btn btn-outline-info btn-sm me-1" title="Voir les détails">
                         <i class="bi bi-eye"></i> Détails
                     </a>
-                    <a asp-controller="Evenement" asp-action="Edit" asp-route-id="@e.Id" 
-                       class="btn btn-outline-primary btn-sm me-1" title="Modifier l'événement">
+                        <a asp-controller="OrganisateurEvenement" asp-action="Edit" asp-route-id="@e.Id"
+                           class="btn btn-outline-primary btn-sm me-1" title="Modifier l'événement">
                         <i class="bi bi-pencil-square"></i> Modifier
                     </a>
-                    <a asp-controller="Evenement" asp-action="Delete" asp-route-id="@e.Id" 
-                       class="btn btn-outline-danger btn-sm" title="Supprimer l'événement">
+                        <a asp-controller="OrganisateurEvenement" asp-action="Delete" asp-route-id="@e.Id"
+                           class="btn btn-outline-danger btn-sm" title="Supprimer l'événement">
                         <i class="bi bi-trash"></i> Supprimer
                     </a>
                 </td>
