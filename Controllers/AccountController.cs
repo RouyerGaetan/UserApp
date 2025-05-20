@@ -1,135 +1,94 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using UserApp.Models;
+using UserApp.Services.Interfaces;  // <- Changement : utilisation du service via interface
 using UsersApp.ViewModels;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace UserApp.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly SignInManager<User> _signInManager;
-        private readonly UserManager<User> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IAccountService _accountService;  // <- Changement : injection d'IAccountService au lieu de UserManager, SignInManager, RoleManager
 
-        public AccountController(SignInManager<User> signInManager, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public AccountController(IAccountService accountService)  // <- Changement : constructeur simplifié avec seulement le service
         {
-            _signInManager = signInManager;
-            _userManager = userManager;
-            _roleManager = roleManager;
+            _accountService = accountService;
         }
 
         [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
-        }
+        public IActionResult Login() => View();
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!ModelState.IsValid)
-            {
                 return View(model);
-            }
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
 
-            if (result.Succeeded)
-            {
+            // <- Changement : on délègue la connexion au service, plus de gestion directe des managers ici
+            bool success = await _accountService.LoginUserAsync(model);
+
+            if (success)
                 return RedirectToAction("Index", "Home");
-            }
 
             ModelState.AddModelError(string.Empty, "Email or password is incorrect");
             return View(model);
         }
+
         [HttpGet]
-        public IActionResult Register()
-        {
-            return View();
-        }
+        public IActionResult Register() => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (!ModelState.IsValid)
-            {
                 return View(model);
-            }
 
-            var user = new User
-            {
-                UserName = model.Email,
-                NormalizedUserName = model.Email.ToUpper(),
-                Email = model.Email,
-                NormalizedEmail = model.Email.ToUpper(),
-                // Ajoute le nom du club uniquement si c'est un organisateur
-                NomDuClub = model.Role == "Organisateur" ? model.NomDuClub : null
-            };
-
-            var result = await _userManager.CreateAsync(user, model.Password);
+            // <- Changement : utilisation du service pour créer l'utilisateur et gérer les rôles
+            (bool Succeeded, IEnumerable<string> Errors) result = await _accountService.RegisterUserAsync(model);
 
             if (result.Succeeded)
-            {
-                // Vérifier que le rôle sélectionné existe, sinon le créer (bien que normalement déjà créé via le Seed)
-                var roleExist = await _roleManager.RoleExistsAsync(model.Role);
-                if (!roleExist)
-                {
-                    var role = new IdentityRole(model.Role);
-                    await _roleManager.CreateAsync(role);
-                }
-
-                await _userManager.AddToRoleAsync(user, model.Role);
-                await _signInManager.SignInAsync(user, isPersistent: false);
                 return RedirectToAction("Login", "Account");
-            }
 
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
+            foreach (string error in result.Errors)
+                ModelState.AddModelError(string.Empty, error);
 
             return View(model);
         }
 
         [HttpGet]
-        public IActionResult VerifyEmail()
-        {
-            return View();
-        }
+        public IActionResult VerifyEmail() => View();
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> VerifyEmail(VerifyEmailViewModel model)
         {
             if (!ModelState.IsValid)
-            {
                 return View(model);
-            }
-            var user = await _userManager.FindByNameAsync(model.Email);
+
+            // <- Changement : on récupère l'utilisateur via le service, pas directement via UserManager
+            User? user = await _accountService.GetUserByEmailAsync(model.Email);
 
             if (user == null)
             {
                 ModelState.AddModelError("", "Something is wrong!");
                 return View(model);
             }
-            else
-            {
-                return RedirectToAction("ChangePassword", "Account", new { username = user.UserName });
-            }
 
+            return RedirectToAction("ChangePassword", "Account", new { username = user.UserName });
         }
+
         [HttpGet]
         public IActionResult ChangePassword(string username)
         {
             if (string.IsNullOrEmpty(username))
-            {
                 return RedirectToAction("VerifyEmail", "Account");
-            }
+
             return View(new ChangePasswordViewModel { Email = username });
         }
 
         [HttpPost]
-
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             if (!ModelState.IsValid)
@@ -137,33 +96,23 @@ namespace UserApp.Controllers
                 ModelState.AddModelError("", "Something is wrong!");
                 return View(model);
             }
-            var user = await _userManager.FindByNameAsync(model.Email);
 
-            if (user == null)
-            {
-                ModelState.AddModelError("", "User not found!");
-                return View(model);
-            }
-            var result = await _userManager.RemovePasswordAsync(user);
-            if (result.Succeeded)
-            {
-                result = await _userManager.AddPasswordAsync(user, model.NewPassword);
+            // <- Changement : on délègue le changement de mot de passe au service
+            bool success = await _accountService.ChangePasswordAsync(model);
+
+            if (success)
                 return RedirectToAction("Login", "Account");
-            }
-            else
-            {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError("", error.Description);
-                }
-                return View(model);
-            }
+
+            ModelState.AddModelError("", "User not found or error changing password.");
+            return View(model);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            // <- Changement : on délègue la déconnexion au service
+            await _accountService.LogoutAsync();
             return RedirectToAction("Index", "Home");
         }
     }
