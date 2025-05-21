@@ -77,23 +77,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
-    <script>
-        function loadSection(section) {
-            fetch('/Dashboard/LoadSection?section=' + section)
-                .then(response => {
-                    if (!response.ok) throw new Error("Erreur de chargement");
-                    return response.text();
-                })
-                .then(html => {
-                    document.getElementById('dashboard-content').innerHTML = html;
-                })
-                .catch(error => {
-                    document.getElementById('dashboard-content').innerHTML =
-                        "<div class='alert alert-danger'>Erreur de chargement de la section.</div>";
-                });
-        }
-    </script>
+    <script src="~/js/dashboard.js" asp-append-version="true"></script>
 
     @RenderSection("Scripts", required: false)
 </body>

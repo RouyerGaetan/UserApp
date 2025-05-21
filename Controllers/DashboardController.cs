@@ -155,6 +155,16 @@ public class DashboardController : Controller
         TempData["Message"] = "Profil mis à jour avec succès.";
         TempData["MessageType"] = "success";
 
-        return RedirectToAction("Index", new { section = "profil" });
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+        {
+            // En AJAX, renvoyer la vue partielle mise à jour ou un message de succès
+            // Par exemple, on peut retourner la même vue partielle avec un message (à gérer dans la vue)
+            return PartialView("~/Views/Home/Partials/Shared/_EditProfile.cshtml", model);
+        }
+        else
+        {
+            // Sinon rediriger normalement
+            return RedirectToAction("Index", new { section = "profil" });
+        }
     }
 }
