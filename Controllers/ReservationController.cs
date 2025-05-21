@@ -22,6 +22,11 @@ namespace UserApp.Controllers
         // GET: Reservation/Create/5
         public async Task<IActionResult> Create(int evenementId)
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             var evenement = await _context.Evenements
                 .FirstOrDefaultAsync(e => e.Id == evenementId);
 
