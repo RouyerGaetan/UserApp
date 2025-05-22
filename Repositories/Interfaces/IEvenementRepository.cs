@@ -8,6 +8,8 @@ namespace UserApp.Repositories.Interfaces
     public interface IEvenementRepository
     {
         Task<Evenement?> GetByIdAsync(int id);
+        Task<Evenement?> GetByIdWithClubAsync(int id);  // <-- ajouté
+
         Task<IEnumerable<Evenement>> GetAllAsync();
         Task<IEnumerable<Evenement>> GetFilteredAsync(string? searchTerm, string? sport, string? ville, decimal? prixMax, DateTime? date, string? filtreDate, int page, int pageSize);
         Task<int> GetCountFilteredAsync(string? searchTerm, string? sport, string? ville, decimal? prixMax, DateTime? date, string? filtreDate);

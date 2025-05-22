@@ -33,8 +33,10 @@ namespace UserApp.Models
         [Url(ErrorMessage = "L'URL de l'image n'est pas valide.")]
         public string? ImageUrl { get; set; }
 
-        public string? UserId { get; set; }
-        public User? User { get; set; }
+        // MODIF : Relation vers Club via ClubId (clé étrangère)
+        [Required]
+        public int ClubId { get; set; }
+        public Club Club { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "Le nombre total de places doit être au moins 1.")]
         public int TotalSeats { get; set; }

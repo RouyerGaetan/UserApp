@@ -8,6 +8,10 @@ namespace UserApp.Services.Interfaces
     public interface IEvenementService
     {
         Task<Evenement?> GetEvenementByIdAsync(int id);
+
+        // Ajout de la méthode pour récupérer un événement avec le Club inclus
+        Task<Evenement?> GetEvenementByIdWithClubAsync(int id);
+
         Task<IEnumerable<Evenement>> GetAllAsync();
 
         Task<PagedResult<Evenement>> GetEvenementsWithFilterAsync(
@@ -20,11 +24,11 @@ namespace UserApp.Services.Interfaces
             int page,
             int pageSize);
 
-        Task<OperationResult> AddEvenementAsync(Evenement evenement);   // <-- retour OperationResult
+        Task<OperationResult> AddEvenementAsync(Evenement evenement);
 
-        Task<OperationResult> UpdateEvenementAsync(Evenement updatedEvent);  // <-- retour OperationResult
+        Task<OperationResult> UpdateEvenementAsync(Evenement updatedEvent);
 
-        Task<OperationResult> DeleteEvenementAsync(int id, string userId);  // <-- retour OperationResult
+        Task<OperationResult> DeleteEvenementAsync(int id, string userId);
 
         Task<bool> IsUserOwnerOfEventAsync(int evenementId, string userId);
     }

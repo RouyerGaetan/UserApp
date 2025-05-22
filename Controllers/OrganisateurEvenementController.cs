@@ -53,13 +53,14 @@ namespace UserApp.Controllers
             var user = await _userService.GetCurrentUserAsync(User);
             if (user == null) return Unauthorized();
 
-            evenement.UserId = user.Id;
+            // L'événement appartient au club lié à l'utilisateur connecté
+            // Il faut que l'organisateur choisisse un ClubId qui lui appartient (à vérifier idéalement)
             evenement.AvailableSeats = evenement.TotalSeats;
 
             var result = await _evenementService.AddEvenementAsync(evenement);
             if (!result.Succeeded)
             {
-                foreach (var error in result.Errors ?? new Dictionary<string, string>())
+                foreach (var error in result.Errors ?? new System.Collections.Generic.Dictionary<string, string>())
                 {
                     if (string.IsNullOrWhiteSpace(error.Key))
                         ModelState.AddModelError(string.Empty, error.Value);
@@ -80,11 +81,11 @@ namespace UserApp.Controllers
             var user = await _userService.GetCurrentUserAsync(User);
             if (user == null) return Unauthorized();
 
-            var evenement = await _evenementService.GetEvenementByIdAsync(id);
+            var evenement = await _evenementService.GetEvenementByIdWithClubAsync(id);
             if (evenement == null)
                 return NotFound();
 
-            if (evenement.UserId != user.Id)
+            if (evenement.Club == null || evenement.Club.UserId != user.Id)
                 return Unauthorized();
 
             ChargerSports();
@@ -105,10 +106,17 @@ namespace UserApp.Controllers
             var user = await _userService.GetCurrentUserAsync(User);
             if (user == null) return Unauthorized();
 
+            var evenement = await _evenementService.GetEvenementByIdWithClubAsync(id);
+            if (evenement == null)
+                return NotFound();
+
+            if (evenement.Club == null || evenement.Club.UserId != user.Id)
+                return Unauthorized();
+
             var result = await _evenementService.UpdateEvenementAsync(updatedEvent);
             if (!result.Succeeded)
             {
-                foreach (var error in result.Errors ?? new Dictionary<string, string>())
+                foreach (var error in result.Errors ?? new System.Collections.Generic.Dictionary<string, string>())
                     ModelState.AddModelError(error.Key, error.Value);
 
                 ChargerSports();
@@ -127,10 +135,10 @@ namespace UserApp.Controllers
             var user = await _userService.GetCurrentUserAsync(User);
             if (user == null) return Unauthorized();
 
-            var evenement = await _evenementService.GetEvenementByIdAsync(id);
+            var evenement = await _evenementService.GetEvenementByIdWithClubAsync(id);
             if (evenement == null) return NotFound();
 
-            if (evenement.UserId != user.Id)
+            if (evenement.Club == null || evenement.Club.UserId != user.Id)
                 return Unauthorized();
 
             return View(evenement);  // Views/OrganisateurEvenement/Delete.cshtml
@@ -142,6 +150,13 @@ namespace UserApp.Controllers
         {
             var user = await _userService.GetCurrentUserAsync(User);
             if (user == null) return Unauthorized();
+
+            var evenement = await _evenementService.GetEvenementByIdWithClubAsync(id);
+            if (evenement == null)
+                return NotFound();
+
+            if (evenement.Club == null || evenement.Club.UserId != user.Id)
+                return Unauthorized();
 
             var result = await _evenementService.DeleteEvenementAsync(id, user.Id);
             if (!result.Succeeded)

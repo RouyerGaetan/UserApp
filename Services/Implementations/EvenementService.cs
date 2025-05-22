@@ -21,6 +21,12 @@ namespace UserApp.Services
             return await _evenementRepository.GetByIdAsync(id);
         }
 
+        // Méthode ajoutée pour récupérer un événement avec son club
+        public async Task<Evenement?> GetEvenementByIdWithClubAsync(int id)
+        {
+            return await _evenementRepository.GetByIdWithClubAsync(id);
+        }
+
         public async Task<IEnumerable<Evenement>> GetAllAsync()
         {
             return await _evenementRepository.GetAllAsync();
@@ -38,7 +44,6 @@ namespace UserApp.Services
             };
         }
 
-        // --- Mise à jour ici : retour OperationResult et gestion des erreurs ---
         public async Task<OperationResult> AddEvenementAsync(Evenement evenement)
         {
             if (evenement == null)

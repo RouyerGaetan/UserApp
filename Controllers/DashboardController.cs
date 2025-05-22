@@ -37,7 +37,9 @@ public class DashboardController : Controller
         {
             case "profil":
                 {
-                    var user = await _userManager.GetUserAsync(User);
+                    var user = await _userManager.Users
+                             .Include(u => u.Club)
+                             .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
                     if (user == null) return Unauthorized();
 
                     var model = new EditProfileViewModel
@@ -46,7 +48,7 @@ public class DashboardController : Controller
                         Prenom = user.Prenom,
                         Birthdate = user.Birthdate,
                         AvatarURL = user.AvatarURL,
-                        NomDuClub = user.NomDuClub,
+                        NomDuClub = user.Club?.Nom,
                         PhoneNumber = user.PhoneNumber
                     };
 
@@ -93,8 +95,10 @@ public class DashboardController : Controller
             {
                 case "evenements":
                     var organisateurId = _userManager.GetUserId(User);
+                    // Inclure la navigation Club pour accéder à Club.UserId
                     var evenements = _context.Evenements
-                                             .Where(e => e.UserId == organisateurId)
+                                             .Include(e => e.Club)
+                                             .Where(e => e.Club.UserId == organisateurId)
                                              .ToList();
 
                     return PartialView("~/Views/Home/Partials/Organisateur/_GererEvenements.cshtml", evenements);
@@ -139,10 +143,19 @@ public class DashboardController : Controller
         user.Prenom = model.Prenom;
         user.Birthdate = model.Birthdate;
         user.AvatarURL = model.AvatarURL;
-        user.NomDuClub = model.NomDuClub;
         user.PhoneNumber = model.PhoneNumber;
 
+        // Mise à jour du nom du club si existant
+        if (user.Club != null)
+        {
+            user.Club.Nom = model.NomDuClub;
+        }
+
+        // Met à jour les infos utilisateur
         var result = await _userManager.UpdateAsync(user);
+
+        // Sauvegarde aussi les changements dans le club
+        await _context.SaveChangesAsync();
 
         if (!result.Succeeded)
         {
@@ -158,7 +171,6 @@ public class DashboardController : Controller
         if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
         {
             // En AJAX, renvoyer la vue partielle mise à jour ou un message de succès
-            // Par exemple, on peut retourner la même vue partielle avec un message (à gérer dans la vue)
             return PartialView("~/Views/Home/Partials/Shared/_EditProfile.cshtml", model);
         }
         else

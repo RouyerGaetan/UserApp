@@ -9,6 +9,8 @@ namespace UserApp.Models
         public DateTime? Birthdate { get; set; }
         public DateTime RegistrationDate { get; set; } = DateTime.UtcNow;
         public string? AvatarURL { get; set; }
-        public string? NomDuClub { get; set; }
+
+        // MODIF : Remplacement de NomDuClub par une navigation vers Club
+        public virtual Club Club { get; set; }
     }
 }
