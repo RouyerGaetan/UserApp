@@ -3,27 +3,26 @@
 <div class="container py-4">
     @if (TempData["Message"] != null)
     {
-        var messageType = TempData["MessageType"]?.ToString() ?? "success";  // Défaut "success" si aucun type spécifié
+        var messageType = TempData["MessageType"]?.ToString() ?? "success";
 
         <div class="alert @(
-        messageType == "success" ? "alert-success" :
-        messageType == "error" ? "alert-danger" :
-        "alert-info") alert-dismissible fade show" role="alert">
+            messageType == "success" ? "alert-success" :
+            messageType == "error" ? "alert-danger" :
+            "alert-info") alert-dismissible fade show" role="alert">
             @TempData["Message"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
+
     <a asp-action="PageEvenement" class="text-decoration-none text-primary small mb-3 d-inline-block">← Retour aux événements</a>
 
     <div class="row g-4">
         <!-- Colonne gauche -->
         <div class="col-md-8">
-            <!-- Image -->
             <div class="card mb-3">
                 @await Html.PartialAsync("_EvenementImage", Model.ImageUrl)
             </div>
 
-            <!-- Titre + sport + organisateur -->
             <div class="card mb-3 p-3 d-flex flex-md-row justify-content-between align-items-start align-items-md-center">
                 <div>
                     <h1 class="h4">@Model.Titre</h1>
@@ -38,14 +37,12 @@
                 </div>
             </div>
 
-            <!-- Affiche match -->
             <div class="alert alert-light d-flex justify-content-between align-items-center fw-semibold fs-5 mb-3">
                 <span>AS Saint-Denis (Domicile)</span>
                 <span class="fs-3 fw-bold text-dark">VS</span>
                 <span>FC Vincennes (Extérieur)</span>
             </div>
 
-            <!-- Détails événement -->
             <div class="card p-4">
                 <h2 class="h6 fw-semibold mb-3">À propos de l’événement</h2>
                 <p>@Model.Description</p>
@@ -61,13 +58,12 @@
 
         <!-- Colonne droite -->
         <div class="col-md-4">
-            <!-- Réservation -->
             <div class="card p-3 mb-4">
                 <h3 class="h6 fw-semibold mb-2">Réservation</h3>
                 <p class="small">Tarif : <strong>@Model.Prix €</strong></p>
 
-                 @if (Model.AvailableSeats > 0)
-                 {
+                @if (Model.AvailableSeats > 0)
+                {
                     <p class="small text-muted">
                         Nombre de places disponibles : <strong>@Model.AvailableSeats</strong>
                     </p>
@@ -75,15 +71,14 @@
                     <a asp-controller="Reservation" asp-action="Create" asp-route-evenementId="@Model.Id" class="btn btn-primary w-100 mt-3">
                         Réserver maintenant
                     </a>
-                 }
-                 else
-                 {
+                }
+                else
+                {
                     <p class="text-danger fw-semibold mt-2">Cet événement est complet.</p>
                     <button class="btn btn-secondary w-100 mt-3" disabled>Réserver maintenant</button>
-                 }
+                }
             </div>
 
-            <!-- Organisateur -->
             <div class="card p-3">
                 <h3 class="h6 fw-semibold mb-2">Organisateur</h3>
                 <p class="small fw-medium">
@@ -99,3 +94,9 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        autoCloseAlert(3000); // ferme l'alerte au bout de 3 secondes
+    </script>
+}
