@@ -4,6 +4,20 @@
     ViewData["Title"] = "Créer un événement";
 }
 
+@* Affiche les erreurs globales *@
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+
 <h2>Créer un événement</h2>
 
 <form asp-action="Create" method="post" class="mt-4">

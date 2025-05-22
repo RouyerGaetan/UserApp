@@ -13,19 +13,22 @@ namespace UserApp.Controllers
     {
         private readonly IEvenementService _evenementService;
         private readonly IUserService _userService;
-        private readonly ILogger<OrganisateurEvenementController> _logger;
+        private readonly IClubService _clubService; // ✅ Ajouté
         private readonly ISportService _sportService;
+        private readonly ILogger<OrganisateurEvenementController> _logger;
 
         public OrganisateurEvenementController(
             IEvenementService evenementService,
             IUserService userService,
-            ILogger<OrganisateurEvenementController> logger,
-            ISportService sportService)
+            IClubService clubService, // ✅ Ajouté
+            ISportService sportService,
+            ILogger<OrganisateurEvenementController> logger)
         {
             _evenementService = evenementService;
             _userService = userService;
-            _logger = logger;
+            _clubService = clubService; // ✅ Assigné
             _sportService = sportService;
+            _logger = logger;
         }
 
         private void ChargerSports()
@@ -44,6 +47,7 @@ namespace UserApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Evenement evenement)
         {
+
             if (!ModelState.IsValid)
             {
                 ChargerSports();
@@ -53,14 +57,21 @@ namespace UserApp.Controllers
             var user = await _userService.GetCurrentUserAsync(User);
             if (user == null) return Unauthorized();
 
-            // L'événement appartient au club lié à l'utilisateur connecté
-            // Il faut que l'organisateur choisisse un ClubId qui lui appartient (à vérifier idéalement)
+            var club = await _clubService.GetClubByUserIdAsync(user.Id);
+            if (club == null)
+            {
+                ModelState.AddModelError(string.Empty, "Vous n'avez pas de club associé.");
+                ChargerSports();
+                return View(evenement);
+            }
+
+            evenement.ClubId = club.Id;  // <<< Important !  
             evenement.AvailableSeats = evenement.TotalSeats;
 
             var result = await _evenementService.AddEvenementAsync(evenement);
             if (!result.Succeeded)
             {
-                foreach (var error in result.Errors ?? new System.Collections.Generic.Dictionary<string, string>())
+                foreach (var error in result.Errors ?? new Dictionary<string, string>())
                 {
                     if (string.IsNullOrWhiteSpace(error.Key))
                         ModelState.AddModelError(string.Empty, error.Value);
@@ -89,8 +100,7 @@ namespace UserApp.Controllers
                 return Unauthorized();
 
             ChargerSports();
-
-            return View(evenement);  // Views/OrganisateurEvenement/Edit.cshtml
+            return View(evenement);
         }
 
         [HttpPost]
@@ -106,12 +116,15 @@ namespace UserApp.Controllers
             var user = await _userService.GetCurrentUserAsync(User);
             if (user == null) return Unauthorized();
 
-            var evenement = await _evenementService.GetEvenementByIdWithClubAsync(id);
-            if (evenement == null)
+            var originalEvent = await _evenementService.GetEvenementByIdWithClubAsync(id);
+            if (originalEvent == null)
                 return NotFound();
 
-            if (evenement.Club == null || evenement.Club.UserId != user.Id)
+            if (originalEvent.Club == null || originalEvent.Club.UserId != user.Id)
                 return Unauthorized();
+
+            // ✅ On réaffecte le ClubId pour être sûr qu’il n’est pas modifié manuellement
+            updatedEvent.ClubId = originalEvent.ClubId;
 
             var result = await _evenementService.UpdateEvenementAsync(updatedEvent);
             if (!result.Succeeded)
@@ -141,7 +154,7 @@ namespace UserApp.Controllers
             if (evenement.Club == null || evenement.Club.UserId != user.Id)
                 return Unauthorized();
 
-            return View(evenement);  // Views/OrganisateurEvenement/Delete.cshtml
+            return View(evenement);
         }
 
         [HttpPost, ActionName("DeleteConfirmed")]
@@ -152,8 +165,7 @@ namespace UserApp.Controllers
             if (user == null) return Unauthorized();
 
             var evenement = await _evenementService.GetEvenementByIdWithClubAsync(id);
-            if (evenement == null)
-                return NotFound();
+            if (evenement == null) return NotFound();
 
             if (evenement.Club == null || evenement.Club.UserId != user.Id)
                 return Unauthorized();

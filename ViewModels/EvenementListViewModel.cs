@@ -1,11 +1,11 @@
-﻿using UserApp.Models;
+﻿    using UserApp.Models;
 
-namespace UserApp.ViewModels
-{
-    public class EvenementListViewModel
+    namespace UserApp.ViewModels
     {
-        public IEnumerable<Evenement> Evenements { get; set; }
-        public int CurrentPage { get; set; }
-        public int TotalPages { get; set; }
+        public class EvenementListViewModel
+        {
+            public IEnumerable<Evenement> Evenements { get; set; }
+            public int CurrentPage { get; set; }
+            public int TotalPages { get; set; }
+        }
     }
-}

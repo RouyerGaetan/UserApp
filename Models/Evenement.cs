@@ -36,7 +36,7 @@ namespace UserApp.Models
         // MODIF : Relation vers Club via ClubId (clé étrangère)
         [Required]
         public int ClubId { get; set; }
-        public Club Club { get; set; }
+        public Club? Club { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "Le nombre total de places doit être au moins 1.")]
         public int TotalSeats { get; set; }
