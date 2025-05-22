@@ -54,7 +54,7 @@ namespace UserApp.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Detail(int id)
         {
-            var evenement = await _evenementService.GetEvenementByIdAsync(id);
+            var evenement = await _evenementService.GetEvenementByIdWithClubAsync(id);
 
             if (evenement == null)
             {
@@ -62,7 +62,7 @@ namespace UserApp.Controllers
                 return NotFound();
             }
 
-            return View(evenement);  // Views/Evenement/Detail.cshtml
+            return View(evenement);
         }
     }
 }

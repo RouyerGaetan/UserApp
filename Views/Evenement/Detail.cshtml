@@ -1,102 +1,107 @@
 ﻿@model UserApp.Models.Evenement
 
 <div class="container py-4">
-    @if (TempData["Message"] != null)
-    {
-        var messageType = TempData["MessageType"]?.ToString() ?? "success";
+	@if (TempData["Message"] != null)
+	{
+		var messageType = TempData["MessageType"]?.ToString() ?? "success";
 
-        <div class="alert @(
+		<div class="alert @(
             messageType == "success" ? "alert-success" :
             messageType == "error" ? "alert-danger" :
             "alert-info") alert-dismissible fade show" role="alert">
-            @TempData["Message"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
+			@TempData["Message"]
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	}
 
-    <a asp-action="PageEvenement" class="text-decoration-none text-primary small mb-3 d-inline-block">← Retour aux événements</a>
+	<a asp-action="PageEvenement" class="text-decoration-none text-primary small mb-3 d-inline-block">← Retour aux événements</a>
 
-    <div class="row g-4">
-        <!-- Colonne gauche -->
-        <div class="col-md-8">
-            <div class="card mb-3">
-                @await Html.PartialAsync("_EvenementImage", Model.ImageUrl)
-            </div>
+	<div class="row g-4">
+		<!-- Colonne gauche -->
+		<div class="col-md-8">
+			<div class="card mb-3">
+				@await Html.PartialAsync("_EvenementImage", Model.ImageUrl)
+			</div>
 
-            <div class="card mb-3 p-3 d-flex flex-md-row justify-content-between align-items-start align-items-md-center">
-                <div>
-                    <h1 class="h4">@Model.Titre</h1>
-                    <p class="text-muted small mb-0">@Model.Sport</p>
-                </div>
-                <div class="text-muted small mt-2 mt-md-0">
-                    Organisé par <strong>
-                        @((Model.Club?.User != null && !string.IsNullOrEmpty(Model.Club.User.Prenom) && !string.IsNullOrEmpty(Model.Club.User.Nom))
-                            ? $"{Model.Club.User.Prenom} {Model.Club.User.Nom}"
-                            : "Utilisateur inconnu")
-                    </strong>
-                </div>
-            </div>
+			<div class="card mb-3 p-3 d-flex flex-md-row justify-content-between align-items-start align-items-md-center">
+				<div>
+					<h1 class="h4">@Model.Titre</h1>
+					<p class="text-muted small mb-0">@Model.Sport</p>
+				</div>
+				<div class="text-muted small mt-2 mt-md-0">
+					Organisé par <strong>
+						@((Model.Club?.User != null && !string.IsNullOrEmpty(Model.Club.User.Prenom) && !string.IsNullOrEmpty(Model.Club.User.Nom))
+													? $"{Model.Club.User.Prenom} {Model.Club.User.Nom}"
+													: "Utilisateur inconnu")
+					</strong>
+				</div>
+			</div>
 
-            <div class="alert alert-light d-flex justify-content-between align-items-center fw-semibold fs-5 mb-3">
-                <span>AS Saint-Denis (Domicile)</span>
-                <span class="fs-3 fw-bold text-dark">VS</span>
-                <span>FC Vincennes (Extérieur)</span>
-            </div>
+			<div class="alert alert-light d-flex justify-content-between align-items-center fw-semibold fs-5 mb-3">
+				<span>AS Saint-Denis (Domicile)</span>
+				<span class="fs-3 fw-bold text-dark">VS</span>
+				<span>FC Vincennes (Extérieur)</span>
+			</div>
 
-            <div class="card p-4">
-                <h2 class="h6 fw-semibold mb-3">À propos de l’événement</h2>
-                <p>@Model.Description</p>
+			<div class="card p-4">
+				<h2 class="h6 fw-semibold mb-3">À propos de l’événement</h2>
+				<p>@Model.Description</p>
 
-                <div class="row row-cols-2 text-muted small mt-3">
-                    <div><strong>Date :</strong> @Model.Date.ToString("dddd dd MMMM yyyy")</div>
-                    <div><strong>Heure :</strong> @Model.Date.ToString("HH:mm")</div>
-                    <div><strong>Lieu :</strong> @Model.Ville</div>
-                    <div><strong>Tarif :</strong> @Model.Prix € par place</div>
-                </div>
-            </div>
-        </div>
+				<div class="row row-cols-2 text-muted small mt-3">
+					<div><strong>Date :</strong> @Model.Date.ToString("dddd dd MMMM yyyy")</div>
+					<div><strong>Heure :</strong> @Model.Date.ToString("HH:mm")</div>
+					<div><strong>Lieu :</strong> @Model.Ville</div>
+					<div><strong>Tarif :</strong> @Model.Prix € par place</div>
+				</div>
+			</div>
+		</div>
 
-        <!-- Colonne droite -->
-        <div class="col-md-4">
-            <div class="card p-3 mb-4">
-                <h3 class="h6 fw-semibold mb-2">Réservation</h3>
-                <p class="small">Tarif : <strong>@Model.Prix €</strong></p>
+		<!-- Colonne droite -->
+		<div class="col-md-4">
+			<div class="card p-3 mb-4">
+				<h3 class="h6 fw-semibold mb-2">Réservation</h3>
+				<p class="small">Tarif : <strong>@Model.Prix €</strong></p>
 
-                @if (Model.AvailableSeats > 0)
-                {
-                    <p class="small text-muted">
-                        Nombre de places disponibles : <strong>@Model.AvailableSeats</strong>
-                    </p>
+				@if (Model.AvailableSeats > 0)
+				{
+					<p class="small text-muted">
+						Nombre de places disponibles : <strong>@Model.AvailableSeats</strong>
+					</p>
 
-                    <a asp-controller="Reservation" asp-action="Create" asp-route-evenementId="@Model.Id" class="btn btn-primary w-100 mt-3">
-                        Réserver maintenant
-                    </a>
-                }
-                else
-                {
-                    <p class="text-danger fw-semibold mt-2">Cet événement est complet.</p>
-                    <button class="btn btn-secondary w-100 mt-3" disabled>Réserver maintenant</button>
-                }
-            </div>
+					<a asp-controller="Reservation" asp-action="Create" asp-route-evenementId="@Model.Id" class="btn btn-primary w-100 mt-3">
+						Réserver maintenant
+					</a>
+				}
+				else
+				{
+					<p class="text-danger fw-semibold mt-2">Cet événement est complet.</p>
+					<button class="btn btn-secondary w-100 mt-3" disabled>Réserver maintenant</button>
+				}
+			</div>
 
-            <div class="card p-3">
-                <h3 class="h6 fw-semibold mb-2">Organisateur</h3>
-                <p class="small fw-medium">
-                    @((Model.Club?.User != null && !string.IsNullOrEmpty(Model.Club.User.Prenom) && !string.IsNullOrEmpty(Model.Club.User.Nom))
-                        ? $"{Model.Club.User.Prenom} {Model.Club.User.Nom}"
-                        : "Utilisateur inconnu")
-                </p>
-                <p class="text-muted small">@(Model.Club?.User?.Email ?? "Email non disponible")</p>
-                <a href="mailto:@Model.Club?.User?.Email" class="small text-decoration-none text-primary d-inline-block mt-2">
-                    Contacter l'organisateur
-                </a>
-            </div>
-        </div>
-    </div>
+			<div class="card p-3">
+				<h3 class="h6 fw-semibold mb-2">Club organisateur</h3>
+
+				@if (Model.Club != null)
+				{
+					<p class="small fw-medium">
+						@(!string.IsNullOrWhiteSpace(Model.Club.Nom)
+													? Model.Club.Nom
+													: "Nom du club inconnu")
+					</p>
+				}
+				else
+				{
+					<p class="small fw-medium">Club inconnu</p>
+				}
+			</div>
+
+		</div>
+	</div>
 </div>
 
 @section Scripts {
-    <script>
-        autoCloseAlert(3000); // ferme l'alerte au bout de 3 secondes
-    </script>
+	<script>
+		autoCloseAlert(3000); // ferme l'alerte au bout de 3 secondes
+	</script>
 }
