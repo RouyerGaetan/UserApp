@@ -30,9 +30,9 @@
 				</div>
 				<div class="text-muted small mt-2 mt-md-0">
 					Organisé par <strong>
-						@((Model.Club?.User != null && !string.IsNullOrEmpty(Model.Club.User.Prenom) && !string.IsNullOrEmpty(Model.Club.User.Nom))
-													? $"{Model.Club.User.Prenom} {Model.Club.User.Nom}"
-													: "Utilisateur inconnu")
+						@(!string.IsNullOrEmpty(Model.Club?.Nom)
+													? Model.Club.Nom
+													: "Club inconnu")
 					</strong>
 				</div>
 			</div>

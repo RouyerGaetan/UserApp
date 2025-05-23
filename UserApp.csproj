@@ -21,6 +21,7 @@
   <ItemGroup>
     <Folder Include="Views\Home\Partials\Admin\" />
     <Folder Include="Views\Home\Partials\User\" />
+    <Folder Include="wwwroot\images\qrcodes\" />
   </ItemGroup>
 
 </Project>

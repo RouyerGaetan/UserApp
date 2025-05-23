@@ -22,7 +22,10 @@
         <a class="navbar-brand" href="/">Guest Sport</a>
         <div class="ms-auto d-flex align-items-center">
             <span class="navbar-text text-light me-3">Bonjour, @username</span>
-            <a class="btn btn-outline-light" href="/Account/Logout">Déconnexion</a>
+            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-link nav-link text-white p-0">Logout</button>
+            </form>
         </div>
     </header>
 

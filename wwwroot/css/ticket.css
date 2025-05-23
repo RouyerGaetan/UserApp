@@ -1,0 +1,73 @@
+﻿.modal-body {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+}
+
+
+.ticket-card {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    min-height: 180px;
+    max-width: 600px;
+    margin: auto;
+    position: relative;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+    .ticket-card::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: calc(66.6%);
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 50%;
+        z-index: 1;
+    }
+
+
+.ticket-info {
+    padding: 16px;
+    flex: 2;
+}
+
+.ticket-qr {
+    padding: 16px;
+    background-color: #f8f9fa;
+    flex: 1;
+    border-left: 1px dashed #ccc;
+}
+
+    .ticket-qr img {
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+    }
+
+.ticket-card p {
+    margin: 0.5rem 0;
+}
+
+.ticket-card h5 {
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 576px) {
+    .ticket-card {
+        flex-direction: column;
+    }
+
+    .ticket-qr {
+        border-left: none;
+        border-top: 1px dashed #ccc;
+    }
+}
+

@@ -22,7 +22,11 @@ public class DashboardController : Controller
     // Page principale du dashboard
     public IActionResult Index(string? section)
     {
-        ViewData["ActiveSection"] = section ?? "profil";
+        if (!string.IsNullOrEmpty(section))
+        {
+            ViewData["ActiveSection"] = section;
+        }
+
         return View("~/Views/Home/Dashboard.cshtml");
     }
 

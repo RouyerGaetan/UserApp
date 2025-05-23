@@ -9,7 +9,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const section = "@ViewData["ActiveSection"]";
-            if (section) {
+            if (section && section !== "null" && section !== "") {
                 loadSection(section);
             }
         });
