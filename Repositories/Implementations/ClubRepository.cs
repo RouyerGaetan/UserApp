@@ -16,4 +16,10 @@ public class ClubRepository : IClubRepository
         return await _context.Clubs
             .FirstOrDefaultAsync(c => c.UserId == userId);
     }
+    public async Task UpdateClubAsync(Club club)
+    {
+        _context.Clubs.Update(club);
+        await _context.SaveChangesAsync();
+    }
+
 }

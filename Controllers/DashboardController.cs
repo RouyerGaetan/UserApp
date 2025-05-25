@@ -12,11 +12,12 @@ public class DashboardController : Controller
 {
     private readonly AppDbContext _context;
     private readonly UserManager<User> _userManager;
-
-    public DashboardController(AppDbContext context, UserManager<User> userManager)
+    private readonly IClubService _clubService;
+    public DashboardController(AppDbContext context, UserManager<User> userManager, IClubService clubService)
     {
         _context = context;
         _userManager = userManager;
+        _clubService = clubService;
     }
 
     // Page principale du dashboard
@@ -108,7 +109,25 @@ public class DashboardController : Controller
                     return PartialView("~/Views/Home/Partials/Organisateur/_GererEvenements.cshtml", evenements);
 
                 case "club":
-                    return PartialView("~/Views/Home/Partials/Organisateur/_MonClub.cshtml");
+                    {
+                        var user = await _userManager.GetUserAsync(User);
+                        if (user == null) return Unauthorized();
+
+                        var club = await _clubService.GetClubByUserIdAsync(user.Id);
+                        if (club == null)
+                            return Content("Aucun club associé.");
+
+                        var model = new EditClubViewModel
+                        {
+                            ClubId = club.Id,
+                            Nom = club.Nom,
+                            Adresse = club.Adresse,
+                            Description = club.Description
+                        };
+
+                        return PartialView("~/Views/Home/Partials/Organisateur/_MonClub.cshtml", model);
+                    }
+
                 case "statistiques":
                     return PartialView("~/Views/Home/Partials/Organisateur/_Statistiques.cshtml");
                 case "spectateurs":

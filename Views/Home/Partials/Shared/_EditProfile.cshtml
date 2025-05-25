@@ -44,4 +44,15 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var message = '@TempData["Message"]';
+            var messageType = '@TempData["MessageType"]' || 'success';
+
+            if (message) {
+                showToast(message, messageType);
+            }
+        });
+    </script>
 }
