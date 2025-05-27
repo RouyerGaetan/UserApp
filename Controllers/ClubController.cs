@@ -54,9 +54,6 @@ public class ClubController : Controller
             return PartialView("~/Views/Home/Partials/Organisateur/_MonClub.cshtml", model);
         }
 
-        TempData["Message"] = "✅ Club mis à jour avec succès.";
-        TempData["MessageType"] = "success";
-
         // Recharger les données du club mises à jour
         var updatedClub = await _clubService.GetClubByUserIdAsync(user.Id);
         var updatedModel = new EditClubViewModel

@@ -67,7 +67,6 @@ namespace UserApp.Controllers
 
             if (await _reservationService.TryCreateReservationAsync(model, user.Id, ModelState))
             {
-                TempData["Message"] = "Réservation effectuée avec succès !";
                 return RedirectToAction("Detail", "Evenement", new { id = model.EvenementId });
             }
 
@@ -83,10 +82,6 @@ namespace UserApp.Controllers
                 return Unauthorized();
 
             bool success = await _reservationService.CancelReservationAsync(reservationId, user.Id);
-            if (!success)
-                TempData["Error"] = "Impossible d'annuler la réservation.";
-            else
-                TempData["Message"] = "Réservation annulée avec succès.";
 
             return RedirectToAction("Index", "Dashboard", new { section = "reservations" });
         }

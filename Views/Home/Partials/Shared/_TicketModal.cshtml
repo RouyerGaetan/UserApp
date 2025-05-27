@@ -1,0 +1,29 @@
+﻿@model UserApp.Models.Reservation
+
+<div class="modal fade" id="ticketModal-@Model.Id" tabindex="-1" aria-labelledby="ticketModalLabel-@Model.Id" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="ticketModalLabel-@Model.Id">🎟️ Billet pour @Model.Evenement?.Titre</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+			</div>
+			<div class="ticket-card d-flex rounded shadow p-4">
+				<div class="ticket-info flex-grow-1 pe-4 border-end">
+					<h5 class="fw-bold">@Model.Evenement?.Titre ?? "Événement supprimé"</h5>
+					<p><strong>Date :</strong> @(Model.Evenement?.Date.ToString("dd/MM/yyyy") ?? "Inconnue")</p>
+					<p><strong>Nombre de places :</strong> @Model.NumberOfSeats</p>
+					<p><strong>Statut :</strong> @Model.Status</p>
+				</div>
+				<div class="ticket-qr text-center ps-4 d-flex flex-column justify-content-center">
+					<img src="@Url.Action("Generate", "QRCode", new { reservationId = Model.Id })"
+						 alt="QR Code"
+						 style="width:150px;" />
+					<p class="text-muted mt-2 small">Présentez ce QR code<br />à l'entrée</p>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+			</div>
+		</div>
+	</div>
+</div>

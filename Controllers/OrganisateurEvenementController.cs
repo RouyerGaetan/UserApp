@@ -136,9 +136,6 @@ namespace UserApp.Controllers
                 return View(updatedEvent);
             }
 
-            TempData["Message"] = "L'événement a bien été modifié.";
-            TempData["MessageType"] = "success";
-
             return RedirectToAction("Index", "Dashboard", new { section = "evenements" });
         }
 
@@ -175,9 +172,6 @@ namespace UserApp.Controllers
             {
                 return Unauthorized();
             }
-
-            TempData["Message"] = "L'événement a bien été supprimé.";
-            TempData["MessageType"] = "success";
 
             return RedirectToAction("Index", "Dashboard", new { section = "evenements" });
         }

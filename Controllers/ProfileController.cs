@@ -57,9 +57,6 @@ public class ProfileController : Controller
             return PartialView("~/Views/Home/Partials/Shared/_EditProfile.cshtml", model);
         }
 
-        TempData["Message"] = "Profil mis à jour avec succès.";
-        TempData["MessageType"] = "success";
-
         return PartialView("~/Views/Home/Partials/Shared/_EditProfile.cshtml", model);
     }
 }
