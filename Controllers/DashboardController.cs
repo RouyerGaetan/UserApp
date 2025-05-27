@@ -41,24 +41,8 @@ public class DashboardController : Controller
         switch (section.ToLower())
         {
             case "profil":
-                {
-                    var user = await _userManager.Users
-                             .Include(u => u.Club)
-                             .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
-                    if (user == null) return Unauthorized();
+                return RedirectToAction("GetProfilePartial", "Profile");
 
-                    var model = new EditProfileViewModel
-                    {
-                        Nom = user.Nom,
-                        Prenom = user.Prenom,
-                        Birthdate = user.Birthdate,
-                        AvatarURL = user.AvatarURL,
-                        NomDuClub = user.Club?.Nom,
-                        PhoneNumber = user.PhoneNumber
-                    };
-
-                    return PartialView("~/Views/Home/Partials/Shared/_EditProfile.cshtml", model);
-                }
             case "reservations":
                 var currentUserId = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name)?.Id;
                 if (currentUserId == null)

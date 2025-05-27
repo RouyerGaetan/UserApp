@@ -1,6 +1,8 @@
 ﻿@model UserApp.ViewModels.EditProfileViewModel
 
-<form asp-action="SaveProfile" method="post" id="editProfileForm" data-ajax="true">
+<form asp-controller="Profile" asp-action="UpdateProfile" method="post" id="editProfileForm" data-ajax="true">
+    @Html.AntiForgeryToken()
+
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="form-group mb-3">
