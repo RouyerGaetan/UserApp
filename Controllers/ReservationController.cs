@@ -1,21 +1,20 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using UserApp.Data;
+using System.Threading.Tasks;
 using UserApp.Models;
 using UserApp.ViewModels;
-using QRCoder;
 
 namespace UserApp.Controllers
 {
     public class ReservationController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly IReservationService _reservationService;
         private readonly UserManager<User> _userManager;
 
-        public ReservationController(AppDbContext context, UserManager<User> userManager)
+        // Injection du service au lieu du context directement
+        public ReservationController(IReservationService reservationService, UserManager<User> userManager)
         {
-            _context = context;
+            _reservationService = reservationService;
             _userManager = userManager;
         }
 
@@ -27,30 +26,28 @@ namespace UserApp.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var evenement = await _context.Evenements
-                .FirstOrDefaultAsync(e => e.Id == evenementId);
-
-            if (evenement == null)
-            {
-                return NotFound();
-            }
-
-            // Récupérer l'utilisateur actuel
             var user = await _userManager.GetUserAsync(User);
 
-            // Vérifier si l'utilisateur a déjà réservé pour cet événement
-            var existingReservation = await _context.Reservations
-                .FirstOrDefaultAsync(r => r.EvenementId == evenementId && r.UserId == user.Id);
+            // Récupération des réservations existantes pour afficher ou rediriger
+            var existingReservations = await _reservationService.GetUserReservationsAsync(user.Id);
 
-            if (existingReservation != null)
+            int totalSeatsReserved = 0;
+            foreach (var res in existingReservations)
             {
+                if (res.EvenementId == evenementId)
+                    totalSeatsReserved += res.NumberOfSeats;
+            }
+
+            if (totalSeatsReserved >= 2)
+            {
+                // Déjà atteint la limite, on redirige vers la page détail de l'événement
                 return RedirectToAction("Detail", "Evenement", new { id = evenementId });
             }
 
             var reservationViewModel = new ReservationViewModel
             {
-                EvenementId = evenement.Id,
-                NumberOfSeats = 1 // Par défaut, on réserve 1 place
+                EvenementId = evenementId,
+                NumberOfSeats = 1
             };
 
             return View(reservationViewModel);
@@ -61,63 +58,37 @@ namespace UserApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ReservationViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!User.Identity.IsAuthenticated)
             {
-                User? user = await _userManager.GetUserAsync(User);
-                Evenement? evenement = await _context.Evenements
-                    .FirstOrDefaultAsync(e => e.Id == model.EvenementId);
+                return RedirectToAction("Login", "Account");
+            }
 
-                if (evenement == null)
-                {
-                    return NotFound();
-                }
+            var user = await _userManager.GetUserAsync(User);
 
-                if (model.NumberOfSeats < 1 || model.NumberOfSeats > 2)
-                {
-                    ModelState.AddModelError("NumberOfSeats", "Vous pouvez réserver entre 1 et 2 places.");
-                    return View(model);
-                }
-
-                if (evenement.AvailableSeats < model.NumberOfSeats)
-                {
-                    ModelState.AddModelError("", "Il n'y a pas assez de places disponibles.");
-                    return View(model);
-                }
-
-                evenement.AvailableSeats -= model.NumberOfSeats;
-                _context.Evenements.Update(evenement);
-
-                Reservation? reservation = new Reservation
-                {
-                    UserId = user.Id,
-                    EvenementId = evenement.Id,
-                    ReservationDate = DateTime.Now,
-                    NumberOfSeats = model.NumberOfSeats,
-                    Status = "Réservée",
-                    IsPresent = false,
-                    QRcode = GenerateQrCode(Guid.NewGuid().ToString()) // Génération d'un QRcode
-                };
-
-                _context.Add(reservation);
-                await _context.SaveChangesAsync();
-
+            if (await _reservationService.TryCreateReservationAsync(model, user.Id, ModelState))
+            {
                 TempData["Message"] = "Réservation effectuée avec succès !";
-                return RedirectToAction("Detail", "Evenement", new { id = evenement.Id });
+                return RedirectToAction("Detail", "Evenement", new { id = model.EvenementId });
             }
 
             return View(model);
         }
 
-        private string GenerateQrCode(string content)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancel(int reservationId)
         {
-            using (var qrGenerator = new QRCodeGenerator())
-            {
-                var qrCodeData = qrGenerator.CreateQrCode(content, QRCodeGenerator.ECCLevel.Q);
-                var qrCode = new PngByteQRCode(qrCodeData);
-                var qrCodeBytes = qrCode.GetGraphic(20);
-                return Convert.ToBase64String(qrCodeBytes);
-            }
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
+            bool success = await _reservationService.CancelReservationAsync(reservationId, user.Id);
+            if (!success)
+                TempData["Error"] = "Impossible d'annuler la réservation.";
+            else
+                TempData["Message"] = "Réservation annulée avec succès.";
+
+            return RedirectToAction("Index", "Dashboard", new { section = "reservations" });
         }
     }
-
 }

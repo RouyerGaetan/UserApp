@@ -93,25 +93,7 @@ public class DashboardController : Controller
                     return PartialView("~/Views/Home/Partials/Organisateur/_GererEvenements.cshtml", evenements);
 
                 case "club":
-                    {
-                        var user = await _userManager.GetUserAsync(User);
-                        if (user == null) return Unauthorized();
-
-                        var club = await _clubService.GetClubByUserIdAsync(user.Id);
-                        if (club == null)
-                            return Content("Aucun club associé.");
-
-                        var model = new EditClubViewModel
-                        {
-                            ClubId = club.Id,
-                            Nom = club.Nom,
-                            Adresse = club.Adresse,
-                            Description = club.Description
-                        };
-
-                        return PartialView("~/Views/Home/Partials/Organisateur/_MonClub.cshtml", model);
-                    }
-
+                    return RedirectToAction("Edit", "Club");
                 case "statistiques":
                     return PartialView("~/Views/Home/Partials/Organisateur/_Statistiques.cshtml");
                 case "spectateurs":

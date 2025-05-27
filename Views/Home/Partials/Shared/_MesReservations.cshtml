@@ -1,72 +1,81 @@
 ﻿@model List<UserApp.Models.Reservation>
 <link rel="stylesheet" href="~/css/ticket.css" />
 
-
 <h3>🎟️ Mes Réservations</h3>
 
 @if (!Model.Any())
 {
-	<p>Aucune réservation pour le moment.</p>
+    <p>Aucune réservation pour le moment.</p>
 }
 else
 {
-	<table class="table table-hover">
-		<thead>
-			<tr>
-				<th>Événement</th>
-				<th>Nombre de places</th>
-				<th>Statut</th>
-				<th>Date</th>
-				<th></th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var r in Model)
-			{
-				<tr>
-					<td>@r.Evenement?.Titre</td>
-					<td>@r.NumberOfSeats</td>
-					<td>@r.Status</td>
-					<td>@r.ReservationDate.ToShortDateString()</td>
-					<td>
-						<button type="button"
-								class="btn btn-sm btn-outline-secondary"
-								data-bs-toggle="modal"
-								data-bs-target="#ticketModal-@r.Id">
-							👁️
-						</button>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Événement</th>
+                <th>Nombre de places</th>
+                <th>Statut</th>
+                <th>Date</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td>@r.Evenement?.Titre</td>
+                    <td>@r.NumberOfSeats</td>
+                    <td>@r.Status</td>
+                    <td>@r.ReservationDate.ToShortDateString()</td>
+                    <td class="d-flex align-items-center gap-2">
 
-						<!-- Modal -->
-						<div class="modal fade" id="ticketModal-@r.Id" tabindex="-1" aria-labelledby="ticketModalLabel-@r.Id" aria-hidden="true">
-							<div class="modal-dialog modal-dialog-centered">
-								<div class="modal-content">
-									<div class="modal-header">
-										<h5 class="modal-title" id="ticketModalLabel-@r.Id">🎟️ Billet pour @r.Evenement?.Titre</h5>
-										<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-									</div>
-									<div class="ticket-card d-flex rounded shadow p-4">
-										<div class="ticket-info flex-grow-1 pe-4 border-end">
-											<h5 class="fw-bold">@r.Evenement.Titre</h5>
-											<p><strong>Date :</strong> @r.Evenement.Date.ToString("dd/MM/yyyy")</p>
-											<p><strong>Nombre de places :</strong> @r.NumberOfSeats</p>
-											<p><strong>Statut :</strong> @r.Status</p>
-										</div>
-										<div class="ticket-qr text-center ps-4 d-flex flex-column justify-content-center">
-											<img src="@Url.Action("Generate", "QRCode", new { reservationId = r.Id })"
-												 alt="QR Code"
-												 style="width:150px;" />
-											<p class="text-muted mt-2 small">Présentez ce QR code<br />à l'entrée</p>
-										</div>
-									</div>
-									<div class="modal-footer">
-										<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-									</div>
-								</div>
-							</div>
-						</div>
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#ticketModal-@r.Id">
+                            👁️
+                        </button>
+
+                        <!-- Formulaire d'annulation -->
+                        <form method="post" asp-controller="Reservation" asp-action="Cancel" style="display:inline;">
+                            <input type="hidden" name="reservationId" value="@r.Id" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Voulez-vous vraiment annuler cette réservation ?');">
+                                ❌ Annuler
+                            </button>
+                        </form>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="ticketModal-@r.Id" tabindex="-1" aria-labelledby="ticketModalLabel-@r.Id" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="ticketModalLabel-@r.Id">🎟️ Billet pour @r.Evenement?.Titre</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                                    </div>
+                                    <div class="ticket-card d-flex rounded shadow p-4">
+                                        <div class="ticket-info flex-grow-1 pe-4 border-end">
+                                            <h5 class="fw-bold">@r.Evenement.Titre</h5>
+                                            <p><strong>Date :</strong> @r.Evenement.Date.ToString("dd/MM/yyyy")</p>
+                                            <p><strong>Nombre de places :</strong> @r.NumberOfSeats</p>
+                                            <p><strong>Statut :</strong> @r.Status</p>
+                                        </div>
+                                        <div class="ticket-qr text-center ps-4 d-flex flex-column justify-content-center">
+                                            <img src="@Url.Action("Generate", "QRCode", new { reservationId = r.Id })"
+                                                 alt="QR Code"
+                                                 style="width:150px;" />
+                                            <p class="text-muted mt-2 small">Présentez ce QR code<br />à l'entrée</p>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
