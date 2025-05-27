@@ -9,7 +9,7 @@
 			</div>
 			<div class="ticket-card d-flex rounded shadow p-4">
 				<div class="ticket-info flex-grow-1 pe-4 border-end">
-					<h5 class="fw-bold">@Model.Evenement?.Titre ?? "Événement supprimé"</h5>
+					<h5 class="fw-bold">@((Model.Evenement?.Titre) ?? "Événement supprimé")</h5>
 					<p><strong>Date :</strong> @(Model.Evenement?.Date.ToString("dd/MM/yyyy") ?? "Inconnue")</p>
 					<p><strong>Nombre de places :</strong> @Model.NumberOfSeats</p>
 					<p><strong>Statut :</strong> @Model.Status</p>
