@@ -20,6 +20,11 @@ public class ReservationService : IReservationService
         return await _reservationRepository.GetReservationsByUserIdAsync(userId);
     }
 
+    public async Task<List<Reservation>> GetPastReservationsAsync(string userId)
+    {
+        return await _reservationRepository.GetPastReservationsByUserIdAsync(userId);
+    }
+
     // Nouvelle méthode avec la logique pour la limite à 2 places max cumulées
     public async Task<bool> TryCreateReservationAsync(ReservationViewModel model, string userId, ModelStateDictionary modelState)
     {

@@ -12,4 +12,6 @@ public interface IReservationService
     Task<bool> TryCreateReservationAsync(ReservationViewModel model, string userId, ModelStateDictionary modelState);
 
     Task<bool> CancelReservationAsync(int reservationId, string userId);
+
+    Task<List<Reservation>> GetPastReservationsAsync(string userId);
 }

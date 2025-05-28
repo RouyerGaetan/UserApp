@@ -16,4 +16,5 @@ public interface IReservationRepository
     // MODIF : Déclarations des nouvelles méthodes pour l'annulation
     Task<Reservation?> GetReservationByIdAsync(int reservationId);
     Task DeleteReservationAsync(Reservation reservation);
+    Task<List<Reservation>> GetPastReservationsByUserIdAsync(string userId);
 }

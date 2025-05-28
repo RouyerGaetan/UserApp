@@ -21,6 +21,14 @@ public class ReservationRepository : IReservationRepository
             .Where(r => r.UserId == userId)
             .ToListAsync();
     }
+    public async Task<List<Reservation>> GetPastReservationsByUserIdAsync(string userId)
+    {
+        var now = DateTime.Now;
+        return await _context.Reservations
+            .Include(r => r.Evenement)
+            .Where(r => r.UserId == userId && r.Evenement != null && r.Evenement.Date < now)
+            .ToListAsync();
+    }
 
     public async Task<Reservation?> GetExistingReservationAsync(int evenementId, string userId)
     {

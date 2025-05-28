@@ -26,7 +26,13 @@ else
 					<td>@(r.Evenement?.Titre ?? "Événement supprimé")</td>
 					<td>@r.NumberOfSeats</td>
 					<td>@r.Status</td>
-					<td>@r.ReservationDate.ToShortDateString()</td>
+					<td>
+						<div><strong>Réservé le :</strong> @r.ReservationDate.ToString("dd/MM/yyyy")</div>
+						@if (r.Evenement?.Date != null)
+						{
+							<div><strong>Événement le :</strong> @r.Evenement.Date.ToString("dd/MM/yyyy")</div>
+						}
+					</td>
 					<td class="d-flex align-items-center gap-2">
 						<button type="button" title="Afficher le billet"
 								class="btn btn-sm btn-outline-secondary"
