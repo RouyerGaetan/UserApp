@@ -45,16 +45,7 @@ public class DashboardController : Controller
                 return RedirectToAction("GetProfilePartial", "Profile");
 
             case "reservations":
-                var currentUserId = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name)?.Id;
-                if (currentUserId == null)
-                    return BadRequest("Utilisateur introuvable.");
-
-                var reservations = _context.Reservations
-                                           .Where(r => r.UserId == currentUserId)
-                                           .Include(r => r.Evenement)
-                                           .ToList();
-
-                return PartialView("~/Views/Home/Partials/Shared/_MesReservations.cshtml", reservations);
+                return RedirectToAction("GetUserReservationsPartial", "Reservation");
 
             case "historique":
                 return PartialView("~/Views/Home/Partials/Shared/_Historique.cshtml");
@@ -85,13 +76,7 @@ public class DashboardController : Controller
             switch (lowerSection)
             {
                 case "evenements":
-                    var organisateurId = _userManager.GetUserId(User);
-                    var evenements = _context.Evenements
-                                             .Include(e => e.Club)
-                                             .Where(e => e.Club.UserId == organisateurId)
-                                             .ToList();
-
-                    return PartialView("~/Views/Home/Partials/Organisateur/_GererEvenements.cshtml", evenements);
+                    return RedirectToAction("GetOrganisateurEvenementsPartial", "OrganisateurEvenement");
 
                 case "club":
                     return RedirectToAction("Edit", "Club");

@@ -12,6 +12,8 @@ namespace UserApp.Repositories.Interfaces
 
         Task<IEnumerable<Evenement>> GetAllAsync();
         Task<IEnumerable<Evenement>> GetFilteredAsync(string? searchTerm, string? sport, string? ville, decimal? prixMax, DateTime? date, string? filtreDate, int page, int pageSize);
+        Task<IEnumerable<Evenement>> GetEvenementsByClubIdAsync(int clubId);
+
         Task<int> GetCountFilteredAsync(string? searchTerm, string? sport, string? ville, decimal? prixMax, DateTime? date, string? filtreDate);
         Task AddAsync(Evenement evenement);
         Task UpdateAsync(Evenement evenement);

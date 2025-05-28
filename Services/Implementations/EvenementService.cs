@@ -31,6 +31,10 @@ namespace UserApp.Services
         {
             return await _evenementRepository.GetAllAsync();
         }
+        public async Task<IEnumerable<Evenement>> GetEvenementsByClubIdAsync(int clubId)
+        {
+            return await _evenementRepository.GetEvenementsByClubIdAsync(clubId);
+        }
 
         public async Task<PagedResult<Evenement>> GetEvenementsWithFilterAsync(string? searchTerm, string? sport, string? ville, decimal? prixMax, DateTime? date, string? filtreDate, int page, int pageSize)
         {

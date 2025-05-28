@@ -85,5 +85,18 @@ namespace UserApp.Controllers
 
             return RedirectToAction("Index", "Dashboard", new { section = "reservations" });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserReservationsPartial()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
+            var reservations = await _reservationService.GetUserReservationsAsync(user.Id);
+
+            // 🔁 Rend la vue partielle _MesReservations avec les réservations de l'utilisateur
+            return PartialView("~/Views/Home/Partials/Shared/_MesReservations.cshtml", reservations);
+        }
     }
 }

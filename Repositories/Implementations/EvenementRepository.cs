@@ -88,6 +88,14 @@ namespace UserApp.Repositories
                 .Take(pageSize)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<Evenement>> GetEvenementsByClubIdAsync(int clubId)
+        {
+            return await _context.Evenements
+                .AsNoTracking()
+                .Where(e => e.ClubId == clubId)
+                .OrderBy(e => e.Date)
+                .ToListAsync();
+        }
 
         public async Task<int> GetCountFilteredAsync(string? searchTerm, string? sport, string? ville, decimal? prixMax, DateTime? date, string? filtreDate)
         {

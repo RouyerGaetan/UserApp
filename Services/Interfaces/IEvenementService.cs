@@ -23,6 +23,7 @@ namespace UserApp.Services.Interfaces
             string? filtreDate,
             int page,
             int pageSize);
+        Task<IEnumerable<Evenement>> GetEvenementsByClubIdAsync(int clubId);
 
         Task<OperationResult> AddEvenementAsync(Evenement evenement);
 

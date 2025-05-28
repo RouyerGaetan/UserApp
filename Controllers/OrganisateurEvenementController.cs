@@ -175,5 +175,20 @@ namespace UserApp.Controllers
 
             return RedirectToAction("Index", "Dashboard", new { section = "evenements" });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetOrganisateurEvenementsPartial()
+        {
+            var user = await _userService.GetCurrentUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var club = await _clubService.GetClubByUserIdAsync(user.Id);
+            if (club == null) return NotFound("Aucun club associé.");
+
+            var evenements = await _evenementService.GetEvenementsByClubIdAsync(club.Id);
+
+            // 🔁 Rend la vue partielle avec la liste des événements de l’organisateur
+            return PartialView("~/Views/Home/Partials/Organisateur/_GererEvenements.cshtml", evenements);
+        }
     }
 }
