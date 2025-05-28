@@ -36,10 +36,15 @@ namespace UserApp.Services
             return await _evenementRepository.GetEvenementsByClubIdAsync(clubId);
         }
 
-        public async Task<PagedResult<Evenement>> GetEvenementsWithFilterAsync(string? searchTerm, string? sport, string? ville, decimal? prixMax, DateTime? date, string? filtreDate, int page, int pageSize)
+        public async Task<PagedResult<Evenement>> GetEvenementsWithFilterAsync(
+            string? searchTerm, string? sport, string? ville, decimal? prixMax, DateTime? date,
+            string? filtreDate, int page, int pageSize, bool disponibleSeulement = false)
         {
-            var items = await _evenementRepository.GetFilteredAsync(searchTerm, sport, ville, prixMax, date, filtreDate, page, pageSize);
-            var totalCount = await _evenementRepository.GetCountFilteredAsync(searchTerm, sport, ville, prixMax, date, filtreDate);
+            var items = await _evenementRepository.GetFilteredAsync(
+                searchTerm, sport, ville, prixMax, date, filtreDate, page, pageSize, disponibleSeulement);
+
+            var totalCount = await _evenementRepository.GetCountFilteredAsync(
+                searchTerm, sport, ville, prixMax, date, filtreDate, disponibleSeulement);
 
             return new PagedResult<Evenement>
             {

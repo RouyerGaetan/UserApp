@@ -44,9 +44,12 @@
 					<label for="ville">Ville</label>
 					<select name="ville" id="ville" class="form-select mb-2">
 						<option value="">Toutes les villes</option>
-						<option value="Paris" selected="@(ViewData["ville"]?.ToString() == "Paris")">Paris</option>
-						<option value="Lyon" selected="@(ViewData["ville"]?.ToString() == "Lyon")">Lyon</option>
-						<option value="Metz" selected="@(ViewData["ville"]?.ToString() == "Metz")">Metz</option>
+						@foreach (var ville in (List<string>)ViewBag.Villes)
+						{
+							<option value="@ville" selected="@(ViewData["ville"]?.ToString() == ville)">
+								@ville
+							</option>
+						}
 					</select>
 
 					<label for="prix">Prix maximum : <span id="prixValue"></span></label>
@@ -57,7 +60,15 @@
 					</div>
 
 					<label for="date">Date</label>
-					<input type="date" name="date" id="date" class="form-control" value="@(ViewData["date"] != null ? ((DateTime)ViewData["date"]).ToString("yyyy-MM-dd") : "")" />
+					<input type="date" name="date" id="date" class="form-control mb-3" value="@(ViewData["date"] != null ? ((DateTime)ViewData["date"]).ToString("yyyy-MM-dd") : "")" />
+
+					<div>
+						<label>
+							<input type="checkbox" name="disponibleSeulement" value="true"
+							@(ViewData["disponibleSeulement"] is true ? "checked" : "") />
+							Événements avec places disponibles uniquement
+						</label>
+					</div>
 
 					<button class="btn btn-outline-secondary mt-4" type="submit">
 						<i class="bi bi-search"></i><span class="ms-2">Filtrer</span>

@@ -34,6 +34,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<ISportService, SportService>();
+builder.Services.AddScoped<IVilleService, VilleService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IEvenementRepository, EvenementRepository>();
 builder.Services.AddScoped<IEvenementService, EvenementService>();

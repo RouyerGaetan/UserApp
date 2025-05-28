@@ -45,7 +45,7 @@ namespace UserApp.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Evenement>> GetFilteredAsync(string? searchTerm, string? sport, string? ville, decimal? prixMax, DateTime? date, string? filtreDate, int page, int pageSize)
+        public async Task<IEnumerable<Evenement>> GetFilteredAsync(string? searchTerm, string? sport, string? ville, decimal? prixMax, DateTime? date, string? filtreDate, int page, int pageSize, bool disponibleSeulement)
         {
             var query = _context.Evenements
                 .AsNoTracking()
@@ -81,6 +81,8 @@ namespace UserApp.Repositories
                 query = query.Where(e => e.Date > DateTime.Now);
             else if (filtreDate == "passe")
                 query = query.Where(e => e.Date < DateTime.Now);
+            if (disponibleSeulement)
+                query = query.Where(e => e.AvailableSeats > 0);
 
             return await query
                 .OrderBy(e => e.Date)
@@ -97,7 +99,7 @@ namespace UserApp.Repositories
                 .ToListAsync();
         }
 
-        public async Task<int> GetCountFilteredAsync(string? searchTerm, string? sport, string? ville, decimal? prixMax, DateTime? date, string? filtreDate)
+        public async Task<int> GetCountFilteredAsync(string? searchTerm, string? sport, string? ville, decimal? prixMax, DateTime? date, string? filtreDate, bool disponibleSeulement)
         {
             var query = _context.Evenements
                 .AsNoTracking()
@@ -131,6 +133,9 @@ namespace UserApp.Repositories
                 query = query.Where(e => e.Date > DateTime.Now);
             else if (filtreDate == "passe")
                 query = query.Where(e => e.Date < DateTime.Now);
+
+            if (disponibleSeulement)
+                query = query.Where(e => e.AvailableSeats > 0);
 
             return await query.CountAsync();
         }
