@@ -3,14 +3,11 @@
     public List<String> GetAllVilles()
     {
         return new List<string>
-            {
-
-            "Paris",
-            "Lyon",
-            "Metz",
-            "Marseille",
-            "Toulouse",
-            "Bordeaux"
-            };
+        {
+            "Paris", "Marseille", "Lyon", "Toulouse", "Nice",
+            "Nantes", "Montpellier", "Strasbourg", "Bordeaux", "Lille",
+            "Rennes", "Reims", "Saint-Étienne", "Le Havre", "Grenoble",
+            "Dijon", "Angers", "Nîmes", "Clermont-Ferrand", "Metz"
+        };
     }
 }
