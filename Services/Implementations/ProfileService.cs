@@ -23,7 +23,6 @@ public class ProfileService : IProfileService
             Prenom = user.Prenom,
             Birthdate = user.Birthdate,
             AvatarURL = user.AvatarURL,
-            NomDuClub = user.Club?.Nom,
             PhoneNumber = user.PhoneNumber
         };
     }
@@ -35,11 +34,6 @@ public class ProfileService : IProfileService
         user.Birthdate = model.Birthdate;
         user.AvatarURL = model.AvatarURL;
         user.PhoneNumber = model.PhoneNumber;
-
-        if (user.Club != null)
-        {
-            user.Club.Nom = model.NomDuClub;
-        }
 
         var result = await _userManager.UpdateAsync(user);
         await _context.SaveChangesAsync();

@@ -44,8 +44,7 @@ builder.Services.AddScoped<IClubService, ClubService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
-
-
+builder.Services.AddScoped<IDashboardSectionService, DashboardSectionService>();
 
 
 var app = builder.Build();

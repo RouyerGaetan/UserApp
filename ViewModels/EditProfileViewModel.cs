@@ -21,10 +21,6 @@ namespace UserApp.ViewModels
         [Display(Name = "URL de l'avatar")]
         public string? AvatarURL { get; set; }
 
-        [StringLength(150, ErrorMessage = "Le nom du club ne peut pas dépasser 150 caractères.")]
-        [Display(Name = "Nom du club")]
-        public string? NomDuClub { get; set; }
-
         [Phone(ErrorMessage = "Le numéro de téléphone n'est pas valide.")]
         [Display(Name = "Téléphone")]
         public string? PhoneNumber { get; set; }
