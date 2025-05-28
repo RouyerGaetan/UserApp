@@ -99,10 +99,16 @@
 								<div class="col-md-6">
 									<div class="card position-relative">
 										<!-- Si le nombre de places restantes est 0, afficher "Sold Out" -->
-										@if (evenement.AvailableSeats == 0)
+										@if (evenement.Date < DateTime.Now)
 										{
-											<div class="sold-out-overlay">
-												<span class="sold-out-text">Sold Out</span>
+											<div class="sold-out-overlay bg-dark bg-opacity-75">
+												<span class="sold-out-text">Événement terminé</span>
+											</div>
+										}
+										else if (evenement.AvailableSeats == 0)
+										{
+											<div class="sold-out-overlay bg-dark bg-opacity-75">
+												<span class="sold-out-text">Complet</span>
 											</div>
 										}
 

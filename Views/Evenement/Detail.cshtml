@@ -62,21 +62,27 @@
 				<h3 class="h6 fw-semibold mb-2">Réservation</h3>
 				<p class="small">Tarif : <strong>@Model.Prix €</strong></p>
 
-				@if (Model.AvailableSeats > 0)
+				@if (Model.Date < DateTime.Now)
 				{
-					<p class="small text-muted">
-						Nombre de places disponibles : <strong>@Model.AvailableSeats</strong>
-					</p>
-
-					<a asp-controller="Reservation" asp-action="Create" asp-route-evenementId="@Model.Id" class="btn btn-primary w-100 mt-3">
-						Réserver maintenant
-					</a>
+					<p class="text-danger fw-semibold mt-2">Cet événement est déjà terminé.</p>
+					<button class="btn btn-secondary w-100 mt-3" disabled>Réserver maintenant</button>
 				}
-				else
+				else if (Model.AvailableSeats == 0)
 				{
 					<p class="text-danger fw-semibold mt-2">Cet événement est complet.</p>
 					<button class="btn btn-secondary w-100 mt-3" disabled>Réserver maintenant</button>
 				}
+				else
+				{
+					<p class="small text-muted">
+						Nombre de places disponibles : <strong>@Model.AvailableSeats</strong>
+					</p>
+					<a asp-controller="Reservation" asp-action="Create" asp-route-evenementId="@Model.Id" class="btn btn-primary w-100 mt-3">
+						Réserver maintenant
+					</a>
+				}
+
+
 			</div>
 
 			<div class="card p-3">
