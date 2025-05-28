@@ -22,7 +22,12 @@ else
                     <td>@(reservation.Evenement?.Titre ?? "Événement supprimé")</td>
                     <td>@reservation.Evenement?.Date.ToString("dd/MM/yyyy")</td>
                     <td>@reservation.NumberOfSeats</td>
-                    <td>@reservation.Status</td>
+                    <td>
+                        @{
+                            var statutAffiche = reservation.Evenement?.Date < DateTime.Now ? "Terminé" : reservation.Status;
+                        }
+                        @statutAffiche
+                    </td>
                 </tr>
             }
         </tbody>
