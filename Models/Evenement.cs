@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
 namespace UserApp.Models
 {
@@ -33,7 +34,6 @@ namespace UserApp.Models
         [Url(ErrorMessage = "L'URL de l'image n'est pas valide.")]
         public string? ImageUrl { get; set; }
 
-        // MODIF : Relation vers Club via ClubId (clé étrangère)
         [Required]
         public int ClubId { get; set; }
         public Club? Club { get; set; }
@@ -43,5 +43,7 @@ namespace UserApp.Models
 
         [Range(0, int.MaxValue, ErrorMessage = "Le nombre de places disponibles ne peut pas être négatif.")]
         public int AvailableSeats { get; set; }
+
+        public virtual ICollection<NoteEvenement> NoteEvenements { get; set; } = new List<NoteEvenement>();
     }
 }

@@ -26,6 +26,7 @@ public class ReservationRepository : IReservationRepository
         var now = DateTime.Now;
         return await _context.Reservations
             .Include(r => r.Evenement)
+                .ThenInclude(e=>e.NoteEvenements)
             .Where(r => r.UserId == userId && r.Evenement != null && r.Evenement.Date < now)
             .ToListAsync();
     }

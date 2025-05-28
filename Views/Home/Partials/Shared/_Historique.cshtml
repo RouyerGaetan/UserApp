@@ -1,4 +1,25 @@
 ﻿@model List<UserApp.Models.Reservation>
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["Error"]
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["Success"]
+    </div>
+}
+
+
+@{
+    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+}
 
 @if (!Model.Any())
 {
@@ -13,20 +34,72 @@ else
                 <th>Date de l'événement</th>
                 <th>Nombre de places</th>
                 <th>Statut</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var reservation in Model)
             {
+                var evenement = reservation.Evenement;
+                if (evenement == null) continue;
+
+                var statutAffiche = evenement.Date < DateTime.Now ? "Terminé" : reservation.Status;
+                var dejaNote = evenement.NoteEvenements?.Any(n => n.UserId == userId) ?? false;
+
                 <tr>
-                    <td>@(reservation.Evenement?.Titre ?? "Événement supprimé")</td>
-                    <td>@reservation.Evenement?.Date.ToString("dd/MM/yyyy")</td>
+                    <td>@evenement.Titre</td>
+                    <td>@evenement.Date.ToString("dd/MM/yyyy")</td>
                     <td>@reservation.NumberOfSeats</td>
+                    <td>@statutAffiche</td>
                     <td>
-                        @{
-                            var statutAffiche = reservation.Evenement?.Date < DateTime.Now ? "Terminé" : reservation.Status;
+                        @if (statutAffiche == "Terminé")
+                        {
+                            if (!dejaNote)
+                            {
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#voterModal-@evenement.Id">
+                                    Voter
+                                </button>
+
+                                <!-- Modale -->
+                                <div class="modal fade" id="voterModal-@evenement.Id" tabindex="-1" aria-labelledby="modalLabel-@evenement.Id" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form asp-controller="NoteEvenement" asp-action="SubmitNote" method="post">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="modalLabel-@evenement.Id">Voter pour : @evenement.Titre</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="EvenementId" value="@evenement.Id" />
+                                                    <div class="mb-3">
+                                                        <label for="Note" class="form-label">Note (1 à 5)</label>
+                                                        <select name="Note" class="form-select" required>
+                                                            <option value="">-- Sélectionnez --</option>
+                                                            @for (int i = 1; i <= 5; i++)
+                                                            {
+                                                                <option value="@i">@i</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="Commentaire" class="form-label">Commentaire</label>
+                                                        <textarea name="Commentaire" class="form-control" rows="3"></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-success">Envoyer</button>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-success">Déjà noté</span>
+                            }
                         }
-                        @statutAffiche
                     </td>
                 </tr>
             }

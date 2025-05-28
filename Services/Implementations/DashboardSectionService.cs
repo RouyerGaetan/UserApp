@@ -26,7 +26,7 @@ public class DashboardSectionService : IDashboardSectionService
         },
         ["historique"] = new SectionDescriptor
         {
-            PartialViewPath = "~/Views/Home/Partials/Shared/_Historique.cshtml",
+            RedirectAction = ("Historique", "GetHistoriquePartial"),
             AllowedRoles = new List<string> { "User", "Organisateur", "Admin" }
         },
         ["notifications"] = new SectionDescriptor

@@ -14,10 +14,13 @@ public class ReservationService : IReservationService
     {
         _reservationRepository = reservationRepository;
     }
-
     public async Task<List<Reservation>> GetUserReservationsAsync(string userId)
     {
-        return await _reservationRepository.GetReservationsByUserIdAsync(userId);
+        var allReservations = await _reservationRepository.GetReservationsByUserIdAsync(userId);
+
+        return allReservations
+            .Where(r => r.Evenement != null && r.Evenement.Date >= DateTime.Now)
+            .ToList();
     }
 
     public async Task<List<Reservation>> GetPastReservationsAsync(string userId)
