@@ -17,3 +17,25 @@
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15), -4px -4px 10px rgba(255, 255, 255, 0.8); /* Ombres plus fortes au survol */
     transform: translateY(-5px); /* Un léger mouvement vers le haut */
 }
+
+/* Styles toggle flèche événements */
+
+.event-header {
+    cursor: pointer;
+    user-select: none;
+    font-weight: bold;
+    font-size: 1.1em;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-arrow {
+    margin-right: 8px;
+    font-size: 1.2em;
+    transition: transform 0.3s ease;
+}
+
+/* Optionnel : rotation de la flèche quand ouvert */
+.event-header.active .toggle-arrow {
+    transform: rotate(90deg);
+}

@@ -1,5 +1,9 @@
-﻿$(document).ready(function () {
-    // Soumission de formulaire AJAX (déjà ok)
+﻿// /wwwroot/js/dashboard.js
+
+// Assure-toi que toggleEvents.js est inclus avant ce fichier dans ta page Layout
+
+$(document).ready(function () {
+    // Initialisation formulaire AJAX (déjà ok)
     $(document).on('submit', 'form[data-ajax="true"]', function (e) {
         e.preventDefault();
 
@@ -13,6 +17,9 @@
             data: data,
             success: function (html) {
                 $('#dashboard-content').html(html);
+
+                // Relancer le toggleEvents après chargement AJAX
+                initToggleEvents();
             },
             error: function () {
                 $('#dashboard-content').html("<div class='alert alert-danger'>Une erreur est survenue lors de la soumission du formulaire.</div>");
@@ -26,6 +33,9 @@
     if (initialSection) {
         loadSection(initialSection);
     }
+
+    // Init toggle au chargement initial
+    initToggleEvents();
 });
 
 function loadSection(section) {
@@ -40,6 +50,9 @@ function loadSection(section) {
             if (section === 'avis') {
                 activerFiltreAvis(); // appelée ici, fonction globale
             }
+
+            // Re-init toggleEvents à chaque nouveau contenu chargé
+            initToggleEvents();
         },
         error: function () {
             $('#dashboard-content').html("<div class='alert alert-danger'>Erreur de chargement de la section.</div>");

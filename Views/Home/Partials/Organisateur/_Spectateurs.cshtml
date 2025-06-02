@@ -10,41 +10,39 @@ else
 {
     foreach (var groupe in Model)
     {
-        <div class="event-group mb-4">
-            <h4>@groupe.Key</h4> <!-- Titre de l'événement -->
-
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Prénom</th>
-                        <th>Date de réservation</th>
-                        <th>Nombre de places</th>
-                        <th>Statut</th>
-                        <th>Présence</th>
-                        <th>QR Code</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var reservation in groupe.Value)
-                    {
+        <div class="event-group mb-4 neumorphism p-3">
+            <div class="event-header">
+                <span class="toggle-arrow">▶</span>
+                @groupe.Key
+            </div>
+            <div class="event-content" style="display:none;">
+                <table class="table table-striped mt-2">
+                    <thead>
                         <tr>
-                            <td>@reservation.User?.Nom ?? "Inconnu"</td>
-                            <td>@reservation.User?.Prenom ?? "Inconnu"</td>
-                            <td>@reservation.ReservationDate.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td>@reservation.NumberOfSeats</td>
-                            <td>@reservation.Status</td>
-                            <td>@(reservation.IsPresent ? "Oui" : "Non")</td>
-                            <td>
-                                @if (!string.IsNullOrEmpty(reservation.QRcode))
-                                {
-                                    <img src="data:image/png;base64,@reservation.QRcode" alt="QR Code" style="width: 80px; height: 80px;" />
-                                }
-                            </td>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Date de réservation</th>
+                            <th>Nombre de places</th>
+                            <th>Statut</th>
+                            <th>Présence</th>
+                            @* <th>QR Code</th> *@
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var reservation in groupe.Value)
+                        {
+                            <tr>
+                                <td>@(reservation.User?.Nom ?? "Inconnu")</td>
+                                <td>@(reservation.User?.Prenom ?? "Inconnu")</td>
+                                <td>@(reservation.ReservationDate.ToString("dd/MM/yyyy HH:mm"))</td>
+                                <td>@(reservation.NumberOfSeats)</td>
+                                <td>@(reservation.Status)</td>
+                                <td>@(reservation.IsPresent ? "Oui" : "Non")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     }
 }
