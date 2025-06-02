@@ -2,47 +2,79 @@
 
 <h3>Liste des spectateurs par événement</h3>
 
+<input type="text" id="spectateurSearch" class="form-control mb-4" placeholder="Recherche..." />
+
+<div id="noMatchMessage" class="alert alert-warning" style="display: none;">
+    Aucun résultat ne correspond à votre recherche.
+</div>
+
 @if (Model == null || !Model.Any())
 {
     <p>Aucun spectateur trouvé pour vos événements.</p>
 }
 else
 {
-    foreach (var groupe in Model)
-    {
-        <div class="event-group mb-4 neumorphism p-3">
-            <div class="event-header">
-                <i class="fa-solid fa-chevron-right toggle-arrow"></i>
-                @groupe.Key
-            </div>
-            <div class="event-content" style="display:none;">
-                <table class="table table-striped mt-2">
-                    <thead>
-                        <tr>
-                            <th>Nom</th>
-                            <th>Prénom</th>
-                            <th>Date de réservation</th>
-                            <th>Nombre de places</th>
-                            <th>Statut</th>
-                            <th>Présence</th>
-                            @* <th>QR Code</th> *@
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var reservation in groupe.Value)
-                        {
+    <div id="spectateurContainer">
+        @foreach (var groupe in Model)
+        {
+            <div class="event-group mb-4 neumorphism p-3">
+                <div class="event-header">
+                    <i class="fa-solid fa-chevron-right toggle-arrow"></i>
+                    @groupe.Key
+                </div>
+                <div class="event-content" style="display:none;">
+                    <table class="table table-striped mt-2">
+                        <thead>
                             <tr>
-                                <td>@(reservation.User?.Nom ?? "Inconnu")</td>
-                                <td>@(reservation.User?.Prenom ?? "Inconnu")</td>
-                                <td>@(reservation.ReservationDate.ToString("dd/MM/yyyy HH:mm"))</td>
-                                <td>@(reservation.NumberOfSeats)</td>
-                                <td>@(reservation.Status)</td>
-                                <td>@(reservation.IsPresent ? "Oui" : "Non")</td>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Date de réservation</th>
+                                <th>Nombre de places</th>
+                                <th>Statut</th>
+                                <th>Présence</th>
+                                @* <th>QR Code</th> *@
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var reservation in groupe.Value)
+                            {
+                                <tr>
+                                    <td>@(reservation.User?.Nom ?? "Inconnu")</td>
+                                    <td>@(reservation.User?.Prenom ?? "Inconnu")</td>
+                                    <td>@(reservation.ReservationDate.ToString("dd/MM/yyyy HH:mm"))</td>
+                                    <td>@(reservation.NumberOfSeats)</td>
+                                    <td>@(reservation.Status)</td>
+                                    <td>@(reservation.IsPresent ? "Oui" : "Non")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-    }
+        }
+    </div>
+}
+
+@section Scripts {
+    <script>
+        const input = document.getElementById('spectateurSearch');
+        const noMatchMessage = document.getElementById('noMatchMessage');
+
+        function filterSpectateurs() {
+            const searchTerm = input.value.toLowerCase();
+            let anyVisible = false;
+
+            document.querySelectorAll('.event-group').forEach(group => {
+                const groupText = group.textContent.toLowerCase();
+                const match = groupText.includes(searchTerm);
+
+                group.style.display = match ? '' : 'none';
+                if (match) anyVisible = true;
+            });
+
+            noMatchMessage.style.display = anyVisible ? 'none' : 'block';
+        }
+
+        input.addEventListener('input', filterSpectateurs);
+    </script>
 }

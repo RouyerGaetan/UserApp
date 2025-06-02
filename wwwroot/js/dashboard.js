@@ -48,7 +48,9 @@ function loadSection(section) {
             history.pushState({ section: section }, '', '/Dashboard?section=' + section);
 
             if (section === 'avis') {
-                activerFiltreAvis(); // appelée ici, fonction globale
+                activerFiltreAvis();
+            } else if (section === 'spectateurs') {
+                activerFiltreSpectateurs();
             }
 
             // Re-init toggleEvents à chaque nouveau contenu chargé
