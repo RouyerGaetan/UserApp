@@ -1,41 +1,77 @@
 ﻿@model List<UserApp.Models.NoteEvenement>
 
-<h3>Test Filtre Avis</h3>
+<h3 class="mb-4">Avis des utilisateurs</h3>
 
-<input type="text" id="avisSearch" placeholder="Recherche..." />
+<input type="text" id="avisSearch" class="form-control mb-4" placeholder="Recherche..." />
 
-<div id="avisContainer">
-    <div class="avis-item" style="border:1px solid #ccc; padding:10px; margin:5px;">
-        Avis 1 - Événement: Tennis - Utilisateur: Jean Dupont - Note: 5
-    </div>
-    <div class="avis-item" style="border:1px solid #ccc; padding:10px; margin:5px;">
-        Avis 2 - Événement: Football - Utilisateur: Alice Martin - Note: 3
-    </div>
-    <div class="avis-item" style="border:1px solid #ccc; padding:10px; margin:5px;">
-        Avis 3 - Événement: Basket - Utilisateur: Bob Lee - Note: 4
-    </div>
+<div id="avisContainer" class="row g-3">
+    @if (Model != null && Model.Any())
+    {
+        foreach (var avis in Model)
+        {
+            <div class="avis-item col-md-4">
+                <div class="card card-custom p-3">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title card-title-custom">
+                            Événement : @(avis.Evenement?.Titre ?? "N/A")
+                        </h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Par : @(avis.User?.Nom ?? "Anonyme") @(avis.User?.Prenom ?? "")</h6>
+
+                        <div class="note-stars" aria-label="Note utilisateur">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                var delay = i - 1;
+                                if (i <= avis.Note)
+                                {
+                                    <span class="star filled" style="--star-index:@delay;">&#9733;</span> <!-- étoile pleine -->
+                                }
+                                else
+                                {
+                                    <span class="star" style="color:#ddd;">&#9733;</span> <!-- étoile grisée -->
+                                }
+                            }
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(avis.Commentaire))
+                        {
+                            <p class="commentaire-custom">"@avis.Commentaire"</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>Aucun avis disponible.</p>
+    }
 </div>
 
-<div id="noMatchMessage" style="color:red; display:none;">
+<div id="noMatchMessage" class="alert alert-warning mt-4" style="display:none;">
     Aucun avis ne correspond à votre recherche.
 </div>
 
 <script>
     const input = document.getElementById('avisSearch');
-    const items = document.querySelectorAll('.avis-item');
     const noMatchMessage = document.getElementById('noMatchMessage');
 
-    input.addEventListener('input', function () {
-        const searchTerm = this.value.toLowerCase();
+    function filterAvis() {
+        const searchTerm = input.value.toLowerCase();
         let anyVisible = false;
 
-        items.forEach(item => {
+        document.querySelectorAll('.avis-item').forEach(item => {
             const text = item.textContent.toLowerCase();
             const match = text.includes(searchTerm);
-            item.style.display = match ? '' : 'none';
-            if (match) anyVisible = true;
+            if (match) {
+                item.classList.remove('hidden');
+                anyVisible = true;
+            } else {
+                item.classList.add('hidden');
+            }
         });
 
         noMatchMessage.style.display = anyVisible ? 'none' : 'block';
-    });
+    }
+
+    input.addEventListener('input', filterAvis);
 </script>
