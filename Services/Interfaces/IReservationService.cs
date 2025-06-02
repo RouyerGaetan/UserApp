@@ -14,4 +14,7 @@ public interface IReservationService
     Task<bool> CancelReservationAsync(int reservationId, string userId);
 
     Task<List<Reservation>> GetPastReservationsAsync(string userId);
+
+    // 🔽 Nouvelle méthode pour récupérer les spectateurs groupés par événement
+    Task<Dictionary<string, List<Reservation>>> GetSpectateursParEvenementAsync(string organisateurId);
 }

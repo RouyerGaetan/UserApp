@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using UserApp.Models;
@@ -98,5 +99,19 @@ namespace UserApp.Controllers
             // 🔁 Rend la vue partielle _MesReservations avec les réservations de l'utilisateur
             return PartialView("~/Views/Home/Partials/Shared/_MesReservations.cshtml", reservations);
         }
+
+        [Authorize(Roles = "Organisateur")]
+        [HttpGet]
+        public async Task<IActionResult> GetSpectateursPartial()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
+            var spectateursParEvenement = await _reservationService.GetSpectateursParEvenementAsync(user.Id);
+
+            return PartialView("~/Views/Home/Partials/Organisateur/_Spectateurs.cshtml", spectateursParEvenement);
+        }
+
     }
 }

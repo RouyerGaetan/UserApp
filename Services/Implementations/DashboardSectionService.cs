@@ -70,7 +70,7 @@ public class DashboardSectionService : IDashboardSectionService
         },
         ["spectateurs"] = new SectionDescriptor
         {
-            PartialViewPath = "~/Views/Home/Partials/Organisateur/_Spectateurs.cshtml",
+            RedirectAction = ("Reservation", "GetSpectateursPartial"),
             AllowedRoles = new List<string> { "Organisateur" }
         },
         ["places"] = new SectionDescriptor

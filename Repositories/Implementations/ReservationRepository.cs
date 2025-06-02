@@ -4,6 +4,7 @@ using UserApp.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
 
 public class ReservationRepository : IReservationRepository
 {
@@ -21,12 +22,13 @@ public class ReservationRepository : IReservationRepository
             .Where(r => r.UserId == userId)
             .ToListAsync();
     }
+
     public async Task<List<Reservation>> GetPastReservationsByUserIdAsync(string userId)
     {
         var now = DateTime.Now;
         return await _context.Reservations
             .Include(r => r.Evenement)
-                .ThenInclude(e=>e.NoteEvenements)
+                .ThenInclude(e => e.NoteEvenements)
             .Where(r => r.UserId == userId && r.Evenement != null && r.Evenement.Date < now)
             .ToListAsync();
     }
@@ -65,7 +67,6 @@ public class ReservationRepository : IReservationRepository
         await Task.CompletedTask;
     }
 
-    // MODIF : Récupérer une réservation par Id
     public async Task<Reservation?> GetReservationByIdAsync(int reservationId)
     {
         return await _context.Reservations
@@ -73,10 +74,25 @@ public class ReservationRepository : IReservationRepository
             .FirstOrDefaultAsync(r => r.Id == reservationId);
     }
 
-    // MODIF : Suppression d'une réservation
     public async Task DeleteReservationAsync(Reservation reservation)
     {
         _context.Reservations.Remove(reservation);
         await Task.CompletedTask;
+    }
+
+    // ✅ Nouvelle méthode : Récupère toutes les réservations pour les événements créés par un organisateur
+    public async Task<List<Reservation>> GetReservationsForOrganisateurAsync(string userId)
+    {
+        var clubIds = await _context.Clubs
+            .Where(c => c.UserId == userId)
+            .Select(c => c.Id)
+            .ToListAsync();
+
+        var reservations = await _context.Reservations
+            .Include(r => r.Evenement)
+            .Where(r => r.Evenement != null && clubIds.Contains(r.Evenement.ClubId))
+            .ToListAsync();
+
+        return reservations;
     }
 }

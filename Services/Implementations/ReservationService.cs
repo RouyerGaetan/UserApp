@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using UserApp.Models;
@@ -14,6 +15,7 @@ public class ReservationService : IReservationService
     {
         _reservationRepository = reservationRepository;
     }
+
     public async Task<List<Reservation>> GetUserReservationsAsync(string userId)
     {
         var allReservations = await _reservationRepository.GetReservationsByUserIdAsync(userId);
@@ -28,7 +30,6 @@ public class ReservationService : IReservationService
         return await _reservationRepository.GetPastReservationsByUserIdAsync(userId);
     }
 
-    // Nouvelle méthode avec la logique pour la limite à 2 places max cumulées
     public async Task<bool> TryCreateReservationAsync(ReservationViewModel model, string userId, ModelStateDictionary modelState)
     {
         var evenement = await _reservationRepository.GetEvenementByIdAsync(model.EvenementId);
@@ -43,7 +44,6 @@ public class ReservationService : IReservationService
             return false;
         }
 
-        // Récupération du total des places déjà réservées pour cet événement par l'utilisateur
         var totalReservedSeats = await _reservationRepository.GetTotalReservedSeatsAsync(model.EvenementId, userId);
         var newTotal = totalReservedSeats + model.NumberOfSeats;
 
@@ -59,7 +59,6 @@ public class ReservationService : IReservationService
             return false;
         }
 
-        // Mise à jour des places disponibles
         evenement.AvailableSeats -= model.NumberOfSeats;
         await _reservationRepository.UpdateEvenementAsync(evenement);
 
@@ -71,7 +70,7 @@ public class ReservationService : IReservationService
             NumberOfSeats = model.NumberOfSeats,
             Status = "Réservée",
             IsPresent = false,
-            QRcode = GenerateQrCode(Guid.NewGuid().ToString()) // Génération QR code
+            QRcode = GenerateQrCode(Guid.NewGuid().ToString())
         };
 
         await _reservationRepository.AddReservationAsync(reservation);
@@ -99,8 +98,7 @@ public class ReservationService : IReservationService
         return true;
     }
 
-
-    // Méthode privée pour générer le QR code
+    // 🔒 Génère un QR code encodé en base64
     private string GenerateQrCode(string content)
     {
         using (var qrGenerator = new QRCodeGenerator())
@@ -111,4 +109,16 @@ public class ReservationService : IReservationService
             return Convert.ToBase64String(qrCodeBytes);
         }
     }
+
+    // ✅ Nouvelle méthode : récupère les réservations groupées par événement
+    public async Task<Dictionary<string, List<Reservation>>> GetSpectateursParEvenementAsync(string organisateurUserId)
+    {
+        var reservations = await _reservationRepository.GetReservationsForOrganisateurAsync(organisateurUserId);
+
+        return reservations
+            .Where(r => r.Evenement != null)
+            .GroupBy(r => r.Evenement.Titre)
+            .ToDictionary(g => g.Key ?? "Sans titre", g => g.ToList());
+    }
+
 }

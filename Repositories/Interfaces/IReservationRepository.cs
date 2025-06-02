@@ -17,4 +17,7 @@ public interface IReservationRepository
     Task<Reservation?> GetReservationByIdAsync(int reservationId);
     Task DeleteReservationAsync(Reservation reservation);
     Task<List<Reservation>> GetPastReservationsByUserIdAsync(string userId);
+
+    // ✅ Nouvelle méthode pour récupérer les réservations des événements créés par un organisateur
+    Task<List<Reservation>> GetReservationsForOrganisateurAsync(string userId);
 }
