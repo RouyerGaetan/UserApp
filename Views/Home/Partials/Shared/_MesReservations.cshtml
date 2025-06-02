@@ -23,7 +23,18 @@ else
 			@foreach (var r in Model)
 			{
 				<tr>
-					<td>@(r.Evenement?.Titre ?? "Événement supprimé")</td>
+					<td>
+						@if (r.Evenement != null)
+						{
+							<a href="@Url.Action("Detail", "Evenement", new { id = r.Evenement.Id })">
+								@r.Evenement.Titre
+							</a>
+						}
+						else
+						{
+							<span>Événement supprimé</span>
+						}
+					</td>
 					<td>@r.NumberOfSeats</td>
 					<td>@r.Status</td>
 					<td>
