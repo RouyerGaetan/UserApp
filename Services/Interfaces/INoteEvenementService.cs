@@ -4,4 +4,6 @@ public interface INoteEvenementService
 {
     Task<bool> HasUserAlreadyNotedAsync(string userId, int evenementId);
     Task SubmitNoteAsync(NoteEvenement note);
+    Task<List<NoteEvenement>> GetNotesParEvenementPourOrganisateurAsync(string organisateurId);
+
 }

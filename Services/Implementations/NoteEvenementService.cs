@@ -20,4 +20,9 @@ public class NoteEvenementService : INoteEvenementService
         await _noteRepo.AddNoteAsync(note);
         await _noteRepo.SaveChangesAsync();
     }
+
+    public async Task<List<NoteEvenement>> GetNotesParEvenementPourOrganisateurAsync(string organisateurId)
+    {
+        return await _noteRepo.GetNotesByOrganisateurAsync(organisateurId);
+    }
 }

@@ -80,7 +80,7 @@ public class DashboardSectionService : IDashboardSectionService
         },
         ["avis"] = new SectionDescriptor
         {
-            PartialViewPath = "~/Views/Home/Partials/Organisateur/_Avis.cshtml",
+            RedirectAction = ("NoteEvenement", "GetAvisPartial"),
             AllowedRoles = new List<string> { "Organisateur" }
         },
         ["alertes"] = new SectionDescriptor

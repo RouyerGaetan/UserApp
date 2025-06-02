@@ -22,6 +22,16 @@ public class NoteEvenementRepository : INoteEvenementRepository
         await _context.NotesEvenements.AddAsync(note);
     }
 
+    public async Task<List<NoteEvenement>> GetNotesByOrganisateurAsync(string organisateurId)
+    {
+        return await _context.NotesEvenements
+            .Include(n => n.Evenement)
+                .ThenInclude(e => e.Club)
+            .Include(n => n.User)
+            .Where(n => n.Evenement.Club.UserId == organisateurId)
+            .ToListAsync();
+    }
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();

@@ -1,0 +1,23 @@
+﻿@model List<UserApp.Models.NoteEvenement>
+
+<h3>Avis des événements</h3>
+
+@if (Model == null || !Model.Any())
+{
+    <p>Aucun avis pour le moment.</p>
+}
+else
+{
+    <ul>
+        @foreach (var avis in Model)
+        {
+            <li>
+                <strong>Événement :</strong> @(avis.Evenement?.Titre ?? "Inconnu") <br />
+                <strong>Utilisateur :</strong> @(avis.User?.UserName ?? "Anonyme") <br />
+                <strong>Note :</strong> @avis.Note / 5 <br />
+                <strong>Commentaire :</strong> @avis.Commentaire <br />
+                <small>Posté le @avis.DateVote.ToString("dd/MM/yyyy")</small>
+            </li>
+        }
+    </ul>
+}

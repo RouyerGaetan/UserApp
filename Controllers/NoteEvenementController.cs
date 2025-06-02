@@ -61,4 +61,15 @@ public class NoteEvenementController : Controller
 
         return RedirectToAction("Index", "Dashboard", new { section = "historique" });
     }
+
+    [Authorize(Roles = "Organisateur,Admin")]
+    public async Task<IActionResult> GetAvisPartial()
+    {
+        var organisateurId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(organisateurId))
+            return Unauthorized();
+
+        var notesParEvenement = await _noteService.GetNotesParEvenementPourOrganisateurAsync(organisateurId);
+        return PartialView("~/Views/Home/Partials/Organisateur/_Avis.cshtml", notesParEvenement);
+    }
 }
