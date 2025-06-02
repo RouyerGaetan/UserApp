@@ -50,28 +50,3 @@
 <div id="noMatchMessage" class="alert alert-warning mt-4" style="display:none;">
     Aucun avis ne correspond à votre recherche.
 </div>
-
-<script>
-    const input = document.getElementById('avisSearch');
-    const noMatchMessage = document.getElementById('noMatchMessage');
-
-    function filterAvis() {
-        const searchTerm = input.value.toLowerCase();
-        let anyVisible = false;
-
-        document.querySelectorAll('.avis-item').forEach(item => {
-            const text = item.textContent.toLowerCase();
-            const match = text.includes(searchTerm);
-            if (match) {
-                item.classList.remove('hidden');
-                anyVisible = true;
-            } else {
-                item.classList.add('hidden');
-            }
-        });
-
-        noMatchMessage.style.display = anyVisible ? 'none' : 'block';
-    }
-
-    input.addEventListener('input', filterAvis);
-</script>
