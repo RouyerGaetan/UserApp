@@ -1,23 +1,41 @@
 ﻿@model List<UserApp.Models.NoteEvenement>
 
-<h3>Avis des événements</h3>
+<h3>Test Filtre Avis</h3>
 
-@if (Model == null || !Model.Any())
-{
-    <p>Aucun avis pour le moment.</p>
-}
-else
-{
-    <ul>
-        @foreach (var avis in Model)
-        {
-            <li>
-                <strong>Événement :</strong> @(avis.Evenement?.Titre ?? "Inconnu") <br />
-                <strong>Utilisateur :</strong> @(avis.User?.UserName ?? "Anonyme") <br />
-                <strong>Note :</strong> @avis.Note / 5 <br />
-                <strong>Commentaire :</strong> @avis.Commentaire <br />
-                <small>Posté le @avis.DateVote.ToString("dd/MM/yyyy")</small>
-            </li>
-        }
-    </ul>
-}
+<input type="text" id="avisSearch" placeholder="Recherche..." />
+
+<div id="avisContainer">
+    <div class="avis-item" style="border:1px solid #ccc; padding:10px; margin:5px;">
+        Avis 1 - Événement: Tennis - Utilisateur: Jean Dupont - Note: 5
+    </div>
+    <div class="avis-item" style="border:1px solid #ccc; padding:10px; margin:5px;">
+        Avis 2 - Événement: Football - Utilisateur: Alice Martin - Note: 3
+    </div>
+    <div class="avis-item" style="border:1px solid #ccc; padding:10px; margin:5px;">
+        Avis 3 - Événement: Basket - Utilisateur: Bob Lee - Note: 4
+    </div>
+</div>
+
+<div id="noMatchMessage" style="color:red; display:none;">
+    Aucun avis ne correspond à votre recherche.
+</div>
+
+<script>
+    const input = document.getElementById('avisSearch');
+    const items = document.querySelectorAll('.avis-item');
+    const noMatchMessage = document.getElementById('noMatchMessage');
+
+    input.addEventListener('input', function () {
+        const searchTerm = this.value.toLowerCase();
+        let anyVisible = false;
+
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            const match = text.includes(searchTerm);
+            item.style.display = match ? '' : 'none';
+            if (match) anyVisible = true;
+        });
+
+        noMatchMessage.style.display = anyVisible ? 'none' : 'block';
+    });
+</script>

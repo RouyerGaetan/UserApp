@@ -37,8 +37,12 @@ function loadSection(section) {
         })
         .then(html => {
             document.getElementById('dashboard-content').innerHTML = html;
-            // Met à jour l'URL sans recharger la page
             history.pushState({ section: section }, '', '/Dashboard?section=' + section);
+
+            // 🔥 Active les scripts spécifiques à certaines sections
+            if (section === 'avis') {
+                activerFiltreAvis();
+            }
         })
         .catch(error => {
             document.getElementById('dashboard-content').innerHTML =
@@ -46,9 +50,34 @@ function loadSection(section) {
         });
 }
 
+
 // Gestion du bouton back/forward du navigateur
 window.onpopstate = function (event) {
     if (event.state && event.state.section) {
         loadSection(event.state.section);
     }
 };
+
+function activerFiltreAvis() {
+    const input = document.getElementById('avisSearch');
+    const items = document.querySelectorAll('.avis-item');
+    const noMatchMessage = document.getElementById('noMatchMessage');
+
+    if (!input || items.length === 0) return;
+
+    input.addEventListener('input', function () {
+        const searchTerm = this.value.toLowerCase();
+        console.log("Recherche :", searchTerm);
+        let anyVisible = false;
+
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            const match = text.includes(searchTerm);
+            item.style.display = match ? '' : 'none';
+            if (match) anyVisible = true;
+        });
+
+        noMatchMessage.style.display = anyVisible ? 'none' : 'block';
+    });
+}
+
