@@ -64,9 +64,9 @@ namespace UserApp.Data
             // NoteEvenement -> Evenement
             modelBuilder.Entity<NoteEvenement>()
                 .HasOne(n => n.Evenement)
-                .WithMany(e => e.NoteEvenements) // <-- précisé la collection ici !
+                .WithMany(e => e.NoteEvenements) 
                 .HasForeignKey(n => n.EvenementId)
-                .OnDelete(DeleteBehavior.Restrict); // 🔄 Change cascade → restrict
+                .OnDelete(DeleteBehavior.Cascade); // 🔄 Change restrict → cascade
 
             // NoteEvenement -> User
             modelBuilder.Entity<NoteEvenement>()
