@@ -3,14 +3,14 @@
 
     $('#dashboard-content').on('click', '.event-header', function () {
         const content = $(this).next('.event-content');
-        const arrow = $(this).find('.toggle-arrow');
+        const header = $(this);
 
         if (content.is(':visible')) {
             content.slideUp();
-            arrow.text('▶');
+            header.removeClass('active');
         } else {
             content.slideDown();
-            arrow.text('▼');
+            header.addClass('active');
         }
     });
 }

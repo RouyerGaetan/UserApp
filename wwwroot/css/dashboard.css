@@ -18,6 +18,26 @@
     transform: translateY(-5px); /* Un léger mouvement vers le haut */
 }
 
+/* Effet Neumorphism de base avec contour noir */
+.neumorphism {
+    background: rgba(255, 255, 255, 0.7); /* Couleur de fond claire */
+    border-radius: 15px; /* Bord arrondi pour un effet plus doux */
+    box-shadow: 8px 8px 15px rgba(0, 0, 0, 0.2), -8px -8px 15px rgba(255, 255, 255, 0.7); /* Ombres internes et externes pour donner un effet de relief */
+    border: 1px solid #000; /* Contour noir autour de la carte */
+    transition: all 0.3s ease;
+}
+
+/* Ne pas affecter l'ombre du texte à l'intérieur de la carte */
+.card-body {
+    color: black; /* Couleur de texte sombre */
+}
+
+/* Effet Neumorphism sur les cartes au survol */
+.card.neumorphism:hover {
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15), -4px -4px 10px rgba(255, 255, 255, 0.8); /* Ombres plus fortes au survol */
+    transform: translateY(-5px); /* Un léger mouvement vers le haut */
+}
+
 /* Styles toggle flèche événements */
 
 .event-header {
@@ -33,9 +53,12 @@
     margin-right: 8px;
     font-size: 1.2em;
     transition: transform 0.3s ease;
+    color: black;
 }
 
-/* Optionnel : rotation de la flèche quand ouvert */
 .event-header.active .toggle-arrow {
     transform: rotate(90deg);
 }
+
+
+
