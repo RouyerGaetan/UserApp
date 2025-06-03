@@ -54,27 +54,3 @@ else
         }
     </div>
 }
-
-@section Scripts {
-    <script>
-        const input = document.getElementById('spectateurSearch');
-        const noMatchMessage = document.getElementById('noMatchMessage');
-
-        function filterSpectateurs() {
-            const searchTerm = input.value.toLowerCase();
-            let anyVisible = false;
-
-            document.querySelectorAll('.event-group').forEach(group => {
-                const groupText = group.textContent.toLowerCase();
-                const match = groupText.includes(searchTerm);
-
-                group.style.display = match ? '' : 'none';
-                if (match) anyVisible = true;
-            });
-
-            noMatchMessage.style.display = anyVisible ? 'none' : 'block';
-        }
-
-        input.addEventListener('input', filterSpectateurs);
-    </script>
-}

@@ -90,6 +90,7 @@ public class ReservationRepository : IReservationRepository
 
         var reservations = await _context.Reservations
             .Include(r => r.Evenement)
+            .Include(r => r.User) // <-- Ajout ici pour charger l'utilisateur lié
             .Where(r => r.Evenement != null && clubIds.Contains(r.Evenement.ClubId))
             .ToListAsync();
 
